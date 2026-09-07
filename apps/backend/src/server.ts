@@ -6,7 +6,7 @@ import { ingestAudio, getQueue } from './controllers/ingestController';
 const app: Express = express();
 const PORT = process.env.PORT || 5000;
 const AUDIO_UPLOAD_DIR = process.env.AUDIO_UPLOAD_DIR || './uploads';
-const AUDIO_UPLOAD_LIMIT = 100 * 1024 * 1024; // 100MB per file
+const AUDIO_UPLOAD_LIMIT = process.env.MAX_FILE_SIZE_MB ? parseInt(process.env.MAX_FILE_SIZE_MB) * 1024 * 1024 : 100 * 1024 * 1024; // 100MB per file
 
 // File upload configuration
 const upload = multer({
