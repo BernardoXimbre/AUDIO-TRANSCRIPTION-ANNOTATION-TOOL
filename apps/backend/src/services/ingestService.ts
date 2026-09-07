@@ -1,6 +1,8 @@
-import { prisma } from '../db';
 import { extractAudioMetadata } from '../utils/audioMetadata';
 import { pairingService } from './pairingService';
+import { audioFileRepository } from '../repositories/audioFileRepository';
+import { transcriptRepository } from '../repositories/transcriptRepository';
+import { recordingRepository } from '../repositories/recordingRepository';
 import * as fs from 'fs';
 import * as path from 'path';
 
@@ -164,40 +166,34 @@ export const ingestService = {
           fs.unlinkSync(audioFileObj.path); // Remove temp file
 
           // Create AudioFile record
-          const audioFile = await prisma.audioFile.create({
-            data: {
-              filename: sanitizedFilename,
-              filepath: permanentPath,
-              duration,
-              sampleRate,
-              channels,
-              bitDepth
-              // TODO: Extract bextMetadata from WAV if present
-            }
+          const audioFile = await audioFileRepository.create({
+            filename: sanitizedFilename,
+            filepath: permanentPath,
+            duration,
+            sampleRate,
+            channels,
+            bitDepth
+            // TODO: Extract bextMetadata from WAV if present
           });
 
           // Create Transcript record (with immutable originalText)
-          await prisma.transcript.create({
-            data: {
-              audioFileId: audioFile.id,
-              originalText: transcriptData.label,
-              correctedText: transcriptData.label, // Initially same as original
-              status: 'pending'
-            }
+          await transcriptRepository.create({
+            audioFile: { connect: { id: audioFile.id } },
+            originalText: transcriptData.label,
+            correctedText: transcriptData.label, // Initially same as original
+            status: 'pending'
           });
 
           // Create Recording record with calculated values
           const speechRateWPM = calculateSpeechRate(transcriptData.label, duration);
           const distanceEstimate = estimateDistance();
 
-          await prisma.recording.create({
-            data: {
-              audioFileId: audioFile.id,
-              speechRate: speechRateWPM,
-              distanceEstimate,
-              speechRateOverride: null,
-              distanceOverride: null
-            }
+          await recordingRepository.create({
+            audioFile: { connect: { id: audioFile.id } },
+            speechRate: speechRateWPM,
+            distanceEstimate,
+            speechRateOverride: null,
+            distanceOverride: null
           });
 
           results.ingested++;
@@ -219,5 +215,28 @@ export const ingestService = {
       results.errors.push(errorMsg);
       throw error;
     }
+  },
+
+  /**
+   * Get queue of transcripts for annotation
+   */
+  async getQueue(status?: string) {
+    const where = status ? { status } : {};
+
+    return transcriptRepository.findMany(where, {
+      id: true,
+      status: true,
+      annotator: true,
+      audioFile: {
+        select: {
+          id: true,
+          filename: true,
+          duration: true,
+          filepath: true,
+          sampleRate: true,
+          channels: true
+        }
+      }
+    }, { audioFile: { duration: 'asc' } });
   }
 };

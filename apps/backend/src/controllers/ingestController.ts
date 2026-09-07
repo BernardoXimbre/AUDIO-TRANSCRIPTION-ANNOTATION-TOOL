@@ -1,21 +1,9 @@
 import { Request, Response } from 'express';
-import { prisma } from '../db';
 import { ingestService } from '../services/ingestService';
 import { validateAudioFileFromPath, validateBatchSize, sanitizeFilename } from '../middleware/uploadValidator';
 
 interface MulterRequest extends Request {
   files?: Express.Multer.File[];
-}
-
-interface QueryFilter {
-  isAutoRejected: boolean;
-  status?: string;
-  audioFile?: {
-    duration: {
-      gte?: number;
-      lte?: number;
-    };
-  };
 }
 
 interface ValidationError {
@@ -153,33 +141,17 @@ export async function ingestAudio(req: Request, res: Response) {
 
 export async function getQueue(req: Request, res: Response) {
   try {
-    const { status, minDuration, maxDuration } = req.query;
+    const { status } = req.query;
 
-    const query: QueryFilter = {
-      isAutoRejected: false // Exclude auto-rejected
-    };
+    const items = await ingestService.getQueue(status ? String(status) : undefined);
 
-    if (status) query.status = status as string;
-    if (minDuration || maxDuration) {
-      query.audioFile = {
-        duration: {}
-      };
-      if (minDuration) query.audioFile.duration.gte = parseFloat(minDuration as string);
-      if (maxDuration) query.audioFile.duration.lte = parseFloat(maxDuration as string);
-    }
-
-    const items = await prisma.transcript.findMany({
-      where: query,
-      include: {
-        audioFile: {
-          select: { filename: true, duration: true, filepath: true }
-        }
-      },
-      orderBy: { createdAt: 'desc' }
+    res.status(200).json({
+      success: true,
+      count: items.length,
+      items
     });
-
-    res.status(200).json(items);
   } catch (error) {
-    res.status(500).json({ error: String(error), status: 500 });
+    const message = error instanceof Error ? error.message : String(error);
+    res.status(500).json({ success: false, error: message });
   }
 }
