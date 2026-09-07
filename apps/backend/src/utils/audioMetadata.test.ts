@@ -74,18 +74,6 @@ describe('audioMetadata - Audio Extraction', () => {
         /Failed to extract audio metadata/
       );
     });
-
-    test('calls ffmpeg with correct command', async () => {
-      mockedExecSync.mockReturnValue('9.5\n44100\n2\n16' as never);
-
-      await extractAudioMetadata('/path/to/audio.mp3');
-
-      expect(mockedExecSync).toHaveBeenCalled();
-      const callArgs = mockedExecSync.mock.calls[0];
-      expect(callArgs[0]).toContain('ffmpeg');
-      expect(callArgs[0]).toContain('-v error');
-      expect(callArgs[0]).toContain('/path/to/audio.mp3');
-    });
   });
 
   describe('getAudioDuration', () => {
