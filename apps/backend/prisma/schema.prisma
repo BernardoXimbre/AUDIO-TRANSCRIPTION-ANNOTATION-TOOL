@@ -1,0 +1,86 @@
+// apps/backend/prisma/schema.prisma
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model AudioFile {
+  id           String   @id @default(cuid())
+  filename     String
+  filepath     String   @unique
+  duration     Float    // seconds
+  sampleRate   Int      // Hz (e.g., 16000)
+  channels     Int      // 1, 2
+  bitDepth     Int      // 16, 24, 32
+  bextMetadata Json?    // Optional BEXT metadata from file header
+  
+  transcripts  Transcript[]
+  recording    Recording?
+  
+  createdAt    DateTime @default(now()) @db.Timestamptz(3)
+  updatedAt    DateTime @updatedAt @db.Timestamptz(3)
+
+  @@index([filename])
+  @@index([createdAt])
+}
+
+model Transcript {
+  id               String   @id @default(cuid())
+  audioFileId      String
+  audioFile        AudioFile @relation(fields: [audioFileId], onDelete: Cascade)
+  
+  originalText     String   // ✅ IMMUTABLE - AI's first-pass transcript
+  correctedText    String   // Editable version by annotator
+  
+  status           String   @default("pending") // pending, in_progress, completed
+  isAutoRejected   Boolean  @default(false)     // true if audio < 15s
+  annotator        String?  // annotator name/ID (optional for MVP)
+  
+  annotations      Annotation[]
+  
+  createdAt        DateTime @default(now()) @db.Timestamptz(3)
+  updatedAt        DateTime @updatedAt @db.Timestamptz(3)
+
+  @@index([audioFileId])
+  @@index([status])
+  @@index([isAutoRejected])
+}
+
+model Annotation {
+  id              String   @id @default(cuid())
+  transcriptId    String
+  transcript      Transcript @relation(fields: [transcriptId], onDelete: Cascade)
+  
+  type            String   // CRUD, NUMBER, FORMATTING_COMMAND, SPELLED_OUT, NAMED_ENTITY, MEDICAL_TERM, MEASUREMENT
+  startOffset     Int      // Character position in correctedText
+  endOffset       Int      // Character position in correctedText
+  attributes      Json     // Type-specific attributes (flexible schema)
+  
+  createdAt       DateTime @default(now()) @db.Timestamptz(3)
+  updatedAt       DateTime @updatedAt @db.Timestamptz(3)
+
+  @@index([transcriptId])
+  @@index([type])
+}
+
+model Recording {
+  id                  String   @id @default(cuid())
+  audioFileId         String   @unique
+  audioFile           AudioFile @relation(fields: [audioFileId], onDelete: Cascade)
+  
+  // Derived values (calculated server-side, user-overridable)
+  speechRate          Int?     // words per minute
+  distanceEstimate    String?  // close, medium, far
+  
+  // Override flags (if user corrected the derived values)
+  speechRateOverride  Int?
+  distanceOverride    String?
+  
+  createdAt           DateTime @default(now()) @db.Timestamptz(3)
+  updatedAt           DateTime @updatedAt @db.Timestamptz(3)
+}

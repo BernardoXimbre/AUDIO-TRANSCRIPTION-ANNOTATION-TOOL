@@ -99,57 +99,7 @@ Keep the implementation consistent with:
 
 ## >>> CHANGE ONLY THIS SECTION <<<
 
-I want to create a folder tasks with files with all tasks/issues we need to solve for this challange, using our agents and knowledge we have about the design and product. Use the model below:
-
-### **[FEATURE] Audio Upload & Auto-Validation Pipeline (Ingest Engine)**
-
-**1. Context & Business Value**
-Manual ingestion and filtering of surgical audio recordings waste valuable clinical annotator time. We need an automated ingest pipeline that accepts batch audio uploads, parses basic metadata, auto-rejects non-viable recordings (< 15 seconds), and prepares valid tracks for transcript pairing.
-
-**2. Functional Requirements**
-
-* Accept audio file uploads in `.wav`, `.mp3`, and `.m4a` formats via API (`POST /api/ingest`).
-* Utilize `ffmpeg-static` to extract audio metadata (duration, sample rate, channels, bit depth) on upload.
-* **15-Second Validation Rule:** Automatically flag and set `Transcript.isAutoRejected = true` for any audio file with a duration strictly under 15.0 seconds. Exclude these files from the annotator work queue.
-* Persist audio metadata and target storage path (`/storage/audio/`) into PostgreSQL via Prisma.
-
-**3. Technical Architecture & Stack Context**
-
-* **Endpoint:** Express Controller (`/src/controllers/ingestController.ts`) handling `multipart/form-data`.
-* **Processing:** Service layer (`/src/services/audioService.ts`) wrapping `ffmpeg-static` to extract metadata stream.
-* **Database:** Prisma ORM schema updates to `AudioFile` and `Transcript` models.
-* **Security & Limits:** Validate file extensions against strict whitelist (`.wav`, `.mp3`, `.m4a`), sanitize filenames to prevent path traversal attacks, and cap maximum request body payload to 100 MB per batch.
-
-**4. Acceptance Criteria (Definition of Done)**
-
-* [ ] Executing `POST /api/ingest` with valid audio files returns `201 Created` with extracted duration metadata.
-* [ ] Audio files < 15.0s are marked as `isAutoRejected: true` in the database and hidden from `GET /api/queue`.
-* [ ] Invalid file formats (e.g., `.ogg`, `.txt`) return a clear `400 Bad Request` with message *"Unsupported file format"*.
-* [ ] Files larger than limits or with malicious relative paths (e.g., `../../etc/passwd`) are blocked and return `422 Unprocessable Entity`.
-* [ ] Unit/Integration tests written and passing for **Regression Test 1** (15-Second Auto-Rejection).
-
-**5. Regression Test Specification**
-
-```typescript
-// Test 1: 15-Second Auto-Rejection
-describe('POST /api/ingest - Auto Rejection', () => {
-  it('should flag audio files under 15 seconds as auto-rejected', async () => {
-    const response = await request(app)
-      .post('/api/ingest')
-      .attach('audio', 'tests/fixtures/short_sample_14s.wav');
-
-    expect(response.status).toBe(201);
-    expect(response.body.transcript.isAutoRejected).toBe(true);
-
-    const queue = await request(app).get('/api/queue');
-    expect(queue.body.items).not.toContainEqual(
-      expect.objectContaining({ filename: 'short_sample_14s.wav' })
-    );
-  });
-});
-
-```
-
+lets make the phase 0 only the task 0.1
 ## <<< END OF CHANGE SECTION >>>
 
 ---
