@@ -1,29 +1,20 @@
 <template>
-  <div id="app" class="container">
-    <h1>Audio Transcription Annotation Tool</h1>
-    <p>✅ Frontend loaded</p>
-    <div class="status">
-      <p><strong>Status:</strong> Ready for Phase 1</p>
-      <p><strong>Backend API:</strong> <span v-if="backendStatus">{{ backendStatus }}</span><span v-else>Checking...</span></p>
-    </div>
+  <div>
+    <nav class="navbar">
+      <div class="nav-container">
+        <router-link to="/" class="nav-brand">🎙️ Audio Annotation</router-link>
+        <div class="nav-links">
+          <router-link to="/" class="nav-link">Home</router-link>
+          <router-link to="/upload" class="nav-link">Upload</router-link>
+        </div>
+      </div>
+    </nav>
+    <router-view />
   </div>
 </template>
 
 <script setup lang="ts">
-import { onMounted, ref } from 'vue'
-
-const backendStatus = ref<string>('')
-
-onMounted(async () => {
-  try {
-    const response = await fetch('/api/health')
-    if (response.ok) {
-      backendStatus.value = '✅ Connected'
-    }
-  } catch {
-    backendStatus.value = '❌ Not connected'
-  }
-})
+// App root component with router view
 </script>
 
 <style>
@@ -36,37 +27,54 @@ body {
 
 #app {
   min-height: 100vh;
-  padding: 20px;
 }
 
-.container {
+.navbar {
+  background: #ffffff;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  padding: 0;
+  margin: 0;
+  border-bottom: 1px solid #e0e0e0;
+}
+
+.nav-container {
   max-width: 1200px;
   margin: 0 auto;
-  background: white;
-  border-radius: 8px;
-  padding: 40px;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  padding: 1rem 20px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
 }
 
-h1 {
-  color: #333;
-  margin-top: 0;
+.nav-brand {
+  font-size: 1.5rem;
+  font-weight: bold;
+  color: #007bff;
+  text-decoration: none;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
 }
 
-p {
+.nav-links {
+  display: flex;
+  gap: 2rem;
+}
+
+.nav-link {
   color: #666;
-  font-size: 16px;
+  text-decoration: none;
+  font-weight: 500;
+  transition: color 0.2s;
 }
 
-.status {
-  margin-top: 30px;
-  padding: 15px;
-  background-color: #f9f9f9;
-  border-left: 4px solid #007bff;
-  border-radius: 4px;
+.nav-link:hover {
+  color: #007bff;
 }
 
-.status strong {
-  color: #333;
+.nav-link.router-link-active {
+  color: #007bff;
+  border-bottom: 2px solid #007bff;
+  padding-bottom: 0.25rem;
 }
 </style>
