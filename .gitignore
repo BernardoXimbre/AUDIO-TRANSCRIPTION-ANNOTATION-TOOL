@@ -1,0 +1,112 @@
+# Dependencies
+node_modules/
+package-lock.json
+yarn.lock
+bun.lockb
+
+# Production
+dist/
+build/
+out/
+.next/
+.nuxt/
+
+# Environment variables
+.env
+.env.local
+.env.*.local
+.env.production.local
+
+# Logs
+logs/
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+lerna-debug.log*
+pnpm-debug.log*
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.DS_Store
+.vs/
+*.sublime-workspace
+*.sublime-project
+
+# TypeScript
+*.tsbuildinfo
+tsconfig.tsbuildinfo
+
+# Testing
+coverage/
+.nyc_output/
+jest.config.js
+
+# Development
+.cache/
+.hot/
+
+# Database
+postgres/
+data/
+*.db
+*.sqlite
+*.sqlite3
+
+# Audio uploads (generated during testing/development)
+uploads/
+test_audio/
+data/demo/audio/
+*.wav
+*.mp3
+*.m4a
+
+# Transcripts/Results (generated)
+export.jsonl
+*.jsonl
+results/
+
+# OS
+Thumbs.db
+Desktop.ini
+
+# Temporary files
+tmp/
+temp/
+*.tmp
+
+# Vite
+.vite/
+
+# Prisma
+prisma/.env
+prisma/dev.db
+
+# Session files
+session-state/
+
+# Test outputs
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+
+# Bundle analyzer
+dist.json
+report.json
+
+# Local development
+.local
+.dev
+
+# Misc
+*.bak
+*.backup
+*.orig
+.eslintcache
+
+/.NoCommit
