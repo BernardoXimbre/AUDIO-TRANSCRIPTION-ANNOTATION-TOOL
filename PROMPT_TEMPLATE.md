@@ -99,7 +99,7 @@ Keep the implementation consistent with:
 
 ## >>> CHANGE ONLY THIS SECTION <<<
 
-lets make the phase 1 only the task 1.2
+lets make the phase 1 only the task 1.3
 ## <<< END OF CHANGE SECTION >>>
 
 ---
