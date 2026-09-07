@@ -30,6 +30,8 @@ Set `POSTGRES_PASSWORD` before running Docker Compose.
 Example:
 
 ```bash
-export POSTGRES_PASSWORD=change-me
+export POSTGRES_PASSWORD=your-secure-password-here
 docker compose up -d
 ```
+
+Use a unique password. Do not reuse this example value outside local development.
