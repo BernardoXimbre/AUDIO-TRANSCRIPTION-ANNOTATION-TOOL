@@ -22,3 +22,14 @@ clinical-audio-annotation/
 
 This commit only establishes the base folder and file structure.
 No backend/frontend implementation code has been added yet.
+
+## Environment (for docker-compose baseline)
+
+Set `POSTGRES_PASSWORD` before running Docker Compose.
+
+Example:
+
+```bash
+export POSTGRES_PASSWORD=change-me
+docker compose up -d
+```
