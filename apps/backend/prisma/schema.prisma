@@ -32,7 +32,7 @@ model AudioFile {
 model Transcript {
   id               String   @id @default(cuid())
   audioFileId      String
-  audioFile        AudioFile @relation(fields: [audioFileId], onDelete: Cascade)
+  audioFile        AudioFile @relation(fields: [audioFileId], references: [id], onDelete: Cascade)
   
   originalText     String   // ✅ IMMUTABLE - AI's first-pass transcript
   correctedText    String   // Editable version by annotator
@@ -54,7 +54,7 @@ model Transcript {
 model Annotation {
   id              String   @id @default(cuid())
   transcriptId    String
-  transcript      Transcript @relation(fields: [transcriptId], onDelete: Cascade)
+  transcript      Transcript @relation(fields: [transcriptId], references: [id], onDelete: Cascade)
   
   type            String   // CRUD, NUMBER, FORMATTING_COMMAND, SPELLED_OUT, NAMED_ENTITY, MEDICAL_TERM, MEASUREMENT
   startOffset     Int      // Character position in correctedText
@@ -71,7 +71,7 @@ model Annotation {
 model Recording {
   id                  String   @id @default(cuid())
   audioFileId         String   @unique
-  audioFile           AudioFile @relation(fields: [audioFileId], onDelete: Cascade)
+  audioFile           AudioFile @relation(fields: [audioFileId], references: [id], onDelete: Cascade)
   
   // Derived values (calculated server-side, user-overridable)
   speechRate          Int?     // words per minute
