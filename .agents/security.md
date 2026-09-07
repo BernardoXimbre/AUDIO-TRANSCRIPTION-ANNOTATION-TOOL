@@ -46,9 +46,18 @@
 - [ ] Annotation attribute schema enforced per type
 - [ ] Span offset validation (valid ranges, no overflow)
 - [ ] No file serving without access control
+- [ ] **Code passes linting** (DESIGN.md Section 7, lint rules enforced)
+
+## Code Quality
+
+**Linting is Part of Security:**
+- ESLint catches common security issues (unused variables, missing error handling)
+- All security-sensitive code must pass linting without bypasses
+- Do NOT override lint rules for security checks; find alternative implementation
 
 ## Notes
 
 - Use a library like `mmmagic` or `file-type` for magic byte validation
 - Store original filename in DB for display, sanitized version for filesystem
 - Consider rate limiting on `/api/ingest` to prevent abuse
+- Lint violations in security code are security issues themselves

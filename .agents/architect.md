@@ -39,9 +39,19 @@
 - [ ] API routes defined with request/response schemas
 - [ ] Error handling strategy documented
 - [ ] No breaking assumptions introduced that TEST or SECURITY cannot validate
+- [ ] Code passes linting: `yarn lint` returns 0 errors (DESIGN.md Section 7)
+
+## Code Quality
+
+**Linting is Mandatory**
+- Ensure all code follows ESLint rules in `.eslintrc.json`
+- No architectural decisions should bypass lint requirements
+- If lint needs an exception, document it in the rule override with a comment
+- Reference DESIGN.md Section 7 for lint workflow
 
 ## Notes
 
 - Overlapping spans are allowed (design decision in DESIGN.md)
 - Original transcript immutability can be enforced via soft-delete or separate "original" table
 - Consider pagination for queue listing (offset/limit)
+- All TypeScript code must pass linting before PR review

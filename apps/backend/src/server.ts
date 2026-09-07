@@ -25,6 +25,7 @@ app.get('/health', (req: Request, res: Response) => {
 });
 
 // API Routes
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 app.post('/api/ingest', upload.any() as any, ingestAudio);
 app.get('/api/queue', getQueue);
 
@@ -38,16 +39,18 @@ app.use((req: Request, res: Response) => {
 });
 
 // Error handling middleware
-app.use((err: any, req: Request, res: Response, next: NextFunction) => {
-  console.error('Error:', err);
-  res.status(err.status || 500).json({
-    error: err.message || 'Internal server error',
-    status: err.status || 500
+app.use((err: unknown, req: Request, res: Response, _next: NextFunction) => {
+  const error = err instanceof Error ? err : new Error(String(err));
+  console.error('Error:', error);
+  const status = (error as { status?: number }).status || 500;
+  res.status(status).json({
+    error: error.message || 'Internal server error',
+    status
   });
 });
 
 // Start server
-const server = app.listen(PORT, () => {
+app.listen(PORT, () => {
   console.log(`✅ Backend running on http://localhost:${PORT}`);
   console.log(`📋 Health check: http://localhost:${PORT}/health`);
   console.log(`📤 Ingest API: POST http://localhost:${PORT}/api/ingest`);

@@ -220,7 +220,46 @@ PostgreSQL Database
 
 ---
 
-## 6. Next Steps (Roadmap)
+## 7. Code Quality & Linting
+
+### Lint Configuration
+
+All backend code must pass linting. Configuration:
+
+- **Tool**: ESLint v8 + Prettier
+- **Config Files**: `.eslintrc.json` (backend), `.prettierrc.json` (backend)
+- **Rules Enforced**:
+  - Semicolons required
+  - Single quotes for strings
+  - 2-space indentation
+  - No unused variables (prefixed `_` allowed)
+  - Proper type annotations (@typescript-eslint/no-explicit-any warned)
+
+### Commands
+
+```bash
+# Check for lint errors
+yarn lint
+
+# Auto-fix lint errors
+yarn lint:fix
+
+# Format code with Prettier
+yarn format
+```
+
+### Workflow
+
+Before committing code:
+1. `yarn lint:fix` (auto-fixes most issues)
+2. `yarn format` (applies prettier rules)
+3. Commit only if `yarn lint` returns 0 errors (warnings acceptable)
+
+Linting is **mandatory** for code quality consistency. Agents reviewing PRs must ensure lint passes.
+
+---
+
+## 8. Next Steps (Roadmap)
 
 **Phase 2 (After MVP):**
 - Batch export with S3/MinIO support

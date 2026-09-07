@@ -157,6 +157,18 @@
 - [ ] README is complete and tested (someone follows it without asking questions)
 - [ ] Code is TypeScript with no `any` types (strict mode)
 - [ ] Tests pass (unit + integration)
+- [ ] **Code passes linting**: `yarn lint` returns 0 errors (DESIGN.md Section 7)
+
+## Code Quality Checklist
+
+Before submitting code:
+1. Run `yarn lint:fix` to auto-fix linting issues
+2. Run `yarn lint` to verify all errors are fixed
+3. Run `yarn format` to apply code formatting
+4. Ensure all files follow ESLint + Prettier rules
+5. Do NOT commit code with linting errors
+
+Reference: DESIGN.md Section 7, `.eslintrc.json`, `.prettierrc.json`
 
 ## Notes
 
@@ -166,3 +178,4 @@
 - Corrected transcript is fully editable
 - Pairing UI uses intuitive drag-drop; fallback click-to-pair for accessibility
 - Audio player seeks to word timestamp only if transcript has time metadata (optional feature)
+- All code must pass ESLint before PR review (mandatory quality gate)

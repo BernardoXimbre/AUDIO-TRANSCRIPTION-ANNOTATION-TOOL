@@ -208,3 +208,17 @@ test("Export JSONL has correct schema and valid JSON", async () => {
 - Tests use actual PostgreSQL (not mocks) to ensure Prisma behavior is correct
 - Audio duration can be mocked in tests (no need for real audio files)
 - Each test is independent; database is rolled back after each test (transaction-based or cleanup)
+
+## Code Quality in Tests
+
+**Lint Must Pass for Test Code Too:**
+- All test files must pass `yarn lint`
+- Test code follows same linting rules as production code (DESIGN.md Section 7)
+- No `// eslint-disable` comments unless absolutely necessary (document why)
+- Test files must be linted before PR review
+
+Run before committing tests:
+```bash
+yarn lint:fix    # Auto-fix linting issues
+yarn lint        # Verify no errors
+```

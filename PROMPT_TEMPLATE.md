@@ -99,7 +99,31 @@ Keep the implementation consistent with:
 
 ## >>> CHANGE ONLY THIS SECTION <<<
 
-lets make the phase 1 only the task 1.1
+We have some problems related with lint lets solve them:
+
+C:\Users\berna\repositorios\AUDIO-TRANSCRIPTION-ANNOTATION-TOOL\apps\backend\src\controllers\ingestController.ts
+  10:27  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  33:18  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+C:\Users\berna\repositorios\AUDIO-TRANSCRIPTION-ANNOTATION-TOOL\apps\backend\src\server.ts
+  28:41  warning  Unexpected any. Specify a different type                                @typescript-eslint/no-explicit-any
+  41:15  warning  Unexpected any. Specify a different type                                @typescript-eslint/no-explicit-any
+  41:49  warning  'next' is defined but never used. Allowed unused args must match /^_/u  @typescript-eslint/no-unused-vars
+  50:7   warning  'server' is assigned a value but never used                             @typescript-eslint/no-unused-vars
+
+C:\Users\berna\repositorios\AUDIO-TRANSCRIPTION-ANNOTATION-TOOL\apps\backend\src\services\ingestService.ts
+   1:10  warning  'prisma' is defined but never used                                                @typescript-eslint/no-unused-vars
+   4:15  warning  Unexpected any. Specify a different type                                          @typescript-eslint/no-explicit-any
+   5:16  warning  Unexpected any. Specify a different type                                          @typescript-eslint/no-explicit-any
+  10:23  warning  'files' is defined but never used. Allowed unused args must match /^_/u           @typescript-eslint/no-unused-vars
+  10:30  warning  Unexpected any. Specify a different type                                          @typescript-eslint/no-explicit-any
+  10:37  warning  'transcriptData' is defined but never used. Allowed unused args must match /^_/u  @typescript-eslint/no-unused-vars
+  10:53  warning  Unexpected any. Specify a different type                                          @typescript-eslint/no-explicit-any
+
+✖ 13 problems (0 errors, 13 warnings)
+
+Done in 0.96s.
+
 ## <<< END OF CHANGE SECTION >>>
 
 ---
