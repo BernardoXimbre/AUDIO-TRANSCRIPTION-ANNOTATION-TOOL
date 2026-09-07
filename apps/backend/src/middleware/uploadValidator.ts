@@ -3,8 +3,8 @@ import path from 'path';
 // Allowed audio MIME types
 const ALLOWED_MIME_TYPES = ['audio/wav', 'audio/mpeg', 'audio/mp4'];
 const ALLOWED_EXTENSIONS = ['.wav', '.mp3', '.m4a'];
-const MAX_FILE_SIZE = 100 * 1024 * 1024; // 100MB
-const MAX_BATCH_SIZE = 500 * 1024 * 1024; // 500MB
+const MAX_FILE_SIZE = (process.env.MAX_FILE_SIZE_MB ? parseInt(process.env.MAX_FILE_SIZE_MB, 10) : 100) * 1024 * 1024; // 100MB
+const MAX_BATCH_SIZE = (process.env.MAX_BATCH_SIZE_MB ? parseInt(process.env.MAX_BATCH_SIZE_MB, 10) : 500) * 1024 * 1024; // 500MB
 
 export interface ValidationResult {
   valid: boolean;
