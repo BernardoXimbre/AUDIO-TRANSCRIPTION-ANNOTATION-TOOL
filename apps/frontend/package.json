@@ -7,7 +7,10 @@
   "scripts": {
     "dev": "vite",
     "build": "vite build",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "lint": "eslint src --ext .ts,.vue",
+    "lint:fix": "eslint src --ext .ts,.vue --fix",
+    "format": "prettier --write \"src/**/*.{ts,vue,css}\""
   },
   "dependencies": {
     "pinia": "^2.1.6",
@@ -15,9 +18,16 @@
     "vue-router": "^4"
   },
   "devDependencies": {
+    "@eslint/js": "^10.0.1",
+    "@typescript-eslint/eslint-plugin": "^8.69.0",
+    "@typescript-eslint/parser": "^8.69.0",
     "@vitejs/plugin-vue": "^5.0.0",
     "@vue/tsconfig": "^0.4.0",
+    "eslint": "^10.10.0",
+    "eslint-plugin-vue": "^10.11.0",
+    "prettier": "^3.9.6",
     "typescript": "^5.3.3",
-    "vite": "^5.0.8"
+    "vite": "^5.0.8",
+    "vue-eslint-parser": "^10.4.1"
   }
 }
