@@ -1,6 +1,7 @@
 import { Request, Response } from 'express';
 import { prisma } from '../db';
 import { ingestService } from '../services/ingestService';
+import { pairingService } from '../services/pairingService';
 import { validateAudioFile, validateBatchSize, sanitizeFilename } from '../middleware/uploadValidator';
 
 interface MulterRequest extends Request {
@@ -24,13 +25,53 @@ interface ValidationError {
   reason: string;
 }
 
+interface ParsedTranscript {
+  path: string;
+  label: string;
+}
+
 export async function ingestAudio(req: Request, res: Response) {
   try {
-    // Files will be in req.files (after multer middleware)
-    // Transcript JSON in req.body.transcripts
-
     const files = (req as unknown as MulterRequest).files || [];
-    const transcripts = req.body.transcripts || [];
+    let transcripts: ParsedTranscript[] = [];
+
+    // Parse transcript JSON from request body
+    if (req.body.transcripts) {
+      try {
+        transcripts = typeof req.body.transcripts === 'string'
+          ? JSON.parse(req.body.transcripts)
+          : req.body.transcripts;
+
+        // Validate transcript format
+        if (!Array.isArray(transcripts)) {
+          res.status(400).json({
+            error: 'INVALID_TRANSCRIPT_FORMAT',
+            reason: 'Transcripts must be a JSON array',
+            status: 400
+          });
+          return;
+        }
+
+        // Validate each transcript has required fields
+        for (const t of transcripts) {
+          if (!t.path || !t.label) {
+            res.status(400).json({
+              error: 'INVALID_TRANSCRIPT_FORMAT',
+              reason: 'Each transcript must have "path" and "label" fields',
+              status: 400
+            });
+            return;
+          }
+        }
+      } catch (parseError) {
+        res.status(400).json({
+          error: 'MALFORMED_JSON',
+          reason: `Failed to parse transcripts: ${String(parseError)}`,
+          status: 400
+        });
+        return;
+      }
+    }
 
     // Validate batch size
     const totalSize = files.reduce((sum, f) => sum + (f.size || 0), 0);
@@ -79,13 +120,32 @@ export async function ingestAudio(req: Request, res: Response) {
       originalname: sanitizeFilename(f.originalname)
     }));
 
+    // Convert files to audio records for pairing
+    const audioRecords = sanitizedFiles.map((f) => ({
+      filename: f.originalname,
+      filePath: f.path || '',
+      duration: 0 // Will be populated by Task 1.3 integration
+    }));
+
+    // Perform pairing
+    const pairingResult = pairingService.matchTranscriptsToAudio(
+      audioRecords,
+      transcripts
+    );
+
+    // Process ingest (Task 1.1 stub)
     const result = await ingestService.processIngest(sanitizedFiles, transcripts);
 
     res.status(200).json({
       success: true,
       audioFiles: result.audioFiles,
       transcripts: result.transcripts,
-      autoRejectedCount: result.autoRejectedCount
+      autoRejectedCount: result.autoRejectedCount,
+      pairing: {
+        matched: pairingResult.matched,
+        unmatchedAudio: pairingResult.unmatchedAudio,
+        unmatchedTranscripts: pairingResult.unmatchedTranscripts
+      }
     });
   } catch (error) {
     res.status(500).json({
