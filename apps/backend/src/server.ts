@@ -1,12 +1,15 @@
 import express, { Express, Request, Response, NextFunction } from 'express';
 import cors from 'cors';
 import multer from 'multer';
+import { PrismaClient } from '@prisma/client';
 import { ingestAudio, getQueue } from './controllers/ingestController';
 
 const app: Express = express();
 const PORT = process.env.PORT || 5000;
 const AUDIO_UPLOAD_DIR = process.env.AUDIO_UPLOAD_DIR || './uploads';
 const AUDIO_UPLOAD_LIMIT = process.env.MAX_FILE_SIZE_MB ? parseInt(process.env.MAX_FILE_SIZE_MB) * 1024 * 1024 : 100 * 1024 * 1024; // 100MB per file
+
+const prisma = new PrismaClient();
 
 // File upload configuration
 const upload = multer({
@@ -49,12 +52,39 @@ app.use((err: unknown, req: Request, res: Response, _next: NextFunction) => {
   });
 });
 
-// Start server
-app.listen(PORT, () => {
-  console.log(`✅ Backend running on http://localhost:${PORT}`);
-  console.log(`📋 Health check: http://localhost:${PORT}/health`);
-  console.log(`📤 Ingest API: POST http://localhost:${PORT}/api/ingest`);
-  console.log(`📋 Queue API: GET http://localhost:${PORT}/api/queue`);
+/**
+ * Initialize database: create schema if it doesn't exist
+ */
+async function initDatabase(): Promise<void> {
+  try {
+    await prisma.audioFile.findFirst();
+  } catch {
+    console.log('Initializing database schema...');
+    const { execSync } = await import('child_process');
+    execSync('npx prisma db push --skip-generate', {
+      stdio: 'inherit',
+      cwd: __dirname + '/..'
+    });
+  }
+}
+
+/**
+ * Start server
+ */
+async function startServer(): Promise<void> {
+  await initDatabase();
+  
+  app.listen(PORT, () => {
+    console.log(`Backend running on http://localhost:${PORT}`);
+    console.log(`Health check: http://localhost:${PORT}/health`);
+    console.log(`Ingest API: POST http://localhost:${PORT}/api/ingest`);
+    console.log(`Queue API: GET http://localhost:${PORT}/api/queue`);
+  });
+}
+
+startServer().catch((error) => {
+  console.error('❌ Failed to start server:', error);
+  process.exit(1);
 });
 
 export default app;

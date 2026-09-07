@@ -1,8 +1,7 @@
 import { Request, Response } from 'express';
 import { prisma } from '../db';
 import { ingestService } from '../services/ingestService';
-import { pairingService } from '../services/pairingService';
-import { validateAudioFile, validateBatchSize, sanitizeFilename } from '../middleware/uploadValidator';
+import { validateAudioFileFromPath, validateBatchSize, sanitizeFilename } from '../middleware/uploadValidator';
 
 interface MulterRequest extends Request {
   files?: Express.Multer.File[];
@@ -33,6 +32,15 @@ interface ParsedTranscript {
 export async function ingestAudio(req: Request, res: Response) {
   try {
     const files = (req as unknown as MulterRequest).files || [];
+
+    if (!files || files.length === 0) {
+      return res.status(400).json({
+        error: 'NO_FILES_PROVIDED',
+        reason: 'No audio files were uploaded',
+        status: 400
+      });
+    }
+
     let transcripts: ParsedTranscript[] = [];
 
     // Parse transcript JSON from request body
@@ -44,45 +52,47 @@ export async function ingestAudio(req: Request, res: Response) {
 
         // Validate transcript format
         if (!Array.isArray(transcripts)) {
-          res.status(400).json({
+          return res.status(400).json({
             error: 'INVALID_TRANSCRIPT_FORMAT',
             reason: 'Transcripts must be a JSON array',
             status: 400
           });
-          return;
         }
 
         // Validate each transcript has required fields
         for (const t of transcripts) {
           if (!t.path || !t.label) {
-            res.status(400).json({
+            return res.status(400).json({
               error: 'INVALID_TRANSCRIPT_FORMAT',
               reason: 'Each transcript must have "path" and "label" fields',
               status: 400
             });
-            return;
           }
         }
       } catch (parseError) {
-        res.status(400).json({
+        return res.status(400).json({
           error: 'MALFORMED_JSON',
           reason: `Failed to parse transcripts: ${String(parseError)}`,
           status: 400
         });
-        return;
       }
+    } else {
+      return res.status(400).json({
+        error: 'NO_TRANSCRIPTS_PROVIDED',
+        reason: 'No transcript JSON was provided in request body',
+        status: 400
+      });
     }
 
     // Validate batch size
     const totalSize = files.reduce((sum, f) => sum + (f.size || 0), 0);
     const batchSizeValidation = validateBatchSize(totalSize);
     if (!batchSizeValidation.valid) {
-      res.status(400).json({
+      return res.status(400).json({
         error: batchSizeValidation.error,
         reason: batchSizeValidation.reason,
         status: 400
       });
-      return;
     }
 
     // Validate each file
@@ -90,7 +100,8 @@ export async function ingestAudio(req: Request, res: Response) {
     const validFiles: Express.Multer.File[] = [];
 
     for (const file of files) {
-      const fileValidation = await validateAudioFile(file.buffer, file.originalname);
+      // Use path-based validation since multer saves to disk
+      const fileValidation = await validateAudioFileFromPath(file.path, file.originalname);
       if (!fileValidation.valid) {
         validationErrors.push({
           file: file.originalname,
@@ -104,14 +115,13 @@ export async function ingestAudio(req: Request, res: Response) {
 
     // If there are validation errors, report them
     if (validationErrors.length > 0) {
-      res.status(400).json({
+      return res.status(400).json({
         error: 'VALIDATION_FAILED',
         invalidFiles: validationErrors,
         validCount: validFiles.length,
         totalCount: files.length,
         status: 400
       });
-      return;
     }
 
     // Sanitize filenames
@@ -120,37 +130,23 @@ export async function ingestAudio(req: Request, res: Response) {
       originalname: sanitizeFilename(f.originalname)
     }));
 
-    // Convert files to audio records for pairing
-    const audioRecords = sanitizedFiles.map((f) => ({
-      filename: f.originalname,
-      filePath: f.path || '',
-      duration: 0 // Will be populated by Task 1.3 integration
-    }));
-
-    // Perform pairing
-    const pairingResult = pairingService.matchTranscriptsToAudio(
-      audioRecords,
-      transcripts
-    );
-
-    // Process ingest (Task 1.1 stub)
+    // Process ingest with service
     const result = await ingestService.processIngest(sanitizedFiles, transcripts);
 
-    res.status(200).json({
-      success: true,
-      audioFiles: result.audioFiles,
-      transcripts: result.transcripts,
-      autoRejectedCount: result.autoRejectedCount,
-      pairing: {
-        matched: pairingResult.matched,
-        unmatchedAudio: pairingResult.unmatchedAudio,
-        unmatchedTranscripts: pairingResult.unmatchedTranscripts
-      }
+    return res.status(result.errors.length > 0 ? 207 : 200).json({
+      success: result.errors.length === 0,
+      ingested: result.ingested,
+      rejected: result.rejected,
+      unmatched: result.unmatched,
+      errors: result.errors
     });
   } catch (error) {
-    res.status(500).json({
-      error: String(error),
-      status: 500
+    const message = error instanceof Error ? error.message : String(error);
+    console.error('Ingest error:', message, error);
+    return res.status(400).json({
+      success: false,
+      error: message,
+      errors: [message]
     });
   }
 }

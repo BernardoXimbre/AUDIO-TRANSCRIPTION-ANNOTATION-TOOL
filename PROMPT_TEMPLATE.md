@@ -99,23 +99,7 @@ Keep the implementation consistent with:
 
 ## >>> CHANGE ONLY THIS SECTION <<<
 
-**Task 1.6: Pairing UI Component**
-
-Create `apps/frontend/src/components/PairingUI.vue` - A Vue 3 component that displays auto-matched pairs and unmatched items (from Task 1.4 pairing logic), allowing manual pairing via drag-drop or clicks.
-
-**Deliverable**: PairingUI.vue with:
-- Two-column layout: Audio Files (left), Transcripts (right)
-- Matched pairs section (green, show "audio → transcript", unpair button)
-- Unmatched audio section (orange dashed zone, drag-drop target)
-- Unmatched transcripts section (orange dashed zone, drag-drop target)
-- Summary stats (matched count, unmatched audio count, unmatched transcripts count)
-- Manual pairing via drag-drop (audio to unmatched transcripts zone, vice versa)
-- Action buttons: "← Back to Upload" and "✓ Accept & Ingest" (disabled if unmatched items exist)
-- Emits: 'ingest-complete' (with pairing result) and 'back' events to parent (Upload.vue)
-
-**Integration**: Task 1.5 (Upload.vue) → passes validation result → Task 1.6 (PairingUI.vue)
-
-**Frontend Tests**: Build and lint must pass (0 errors). Vue components must have proper TypeScript types.
+lets make the phase 1 only the task 1.7
 
 ## <<< END OF CHANGE SECTION >>>
 

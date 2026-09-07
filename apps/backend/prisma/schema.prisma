@@ -38,7 +38,6 @@ model Transcript {
   correctedText    String   // Editable version by annotator
   
   status           String   @default("pending") // pending, in_progress, completed
-  isAutoRejected   Boolean  @default(false)     // true if audio < 15s
   annotator        String?  // annotator name/ID (optional for MVP)
   
   annotations      Annotation[]
@@ -48,7 +47,6 @@ model Transcript {
 
   @@index([audioFileId])
   @@index([status])
-  @@index([isAutoRejected])
 }
 
 model Annotation {

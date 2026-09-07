@@ -3,9 +3,9 @@ services:
     image: postgres:16-alpine
     container_name: clinical-audio-postgres
     environment:
-      POSTGRES_DB: ${POSTGRES_DB:-clinical_audio}
-      POSTGRES_USER: ${POSTGRES_USER:-postgres}
-      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?POSTGRES_PASSWORD must be set}
+      POSTGRES_DB: clinical_audio_dev
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: demo-password-dev-only
     ports:
       - "5432:5432"
     volumes:
