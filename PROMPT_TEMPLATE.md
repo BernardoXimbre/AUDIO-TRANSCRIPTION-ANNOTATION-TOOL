@@ -99,8 +99,7 @@ Keep the implementation consistent with:
 
 ## >>> CHANGE ONLY THIS SECTION <<<
 
-lets make the phase 4
-
+I want to refactor our fronent to follow our design in template.html. make a task list.
 ## <<< END OF CHANGE SECTION >>>
 
 ---
