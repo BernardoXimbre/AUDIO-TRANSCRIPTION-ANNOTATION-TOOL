@@ -15,18 +15,25 @@
         <span class="text-xs text-gray-500">{{ audioUrl ? '🎵' : '❌ No audio' }}</span>
       </div>
 
-      <!-- Seek Slider -->
-      <input
-        type="range"
-        v-model.number="currentTime"
-        :max="duration || 0"
-        @input="seek"
-        class="w-full cursor-pointer"
-      />
+      <!-- Seek Slider with Click to Seek Info -->
+      <div>
+        <div class="text-xs text-gray-500 mb-1">Click to seek</div>
+        <input
+          type="range"
+          v-model.number="seekValue"
+          :max="duration || 0"
+          @mousedown="isSeeking = true"
+          @mouseup="isSeeking = false"
+          @touchstart="isSeeking = true"
+          @touchend="isSeeking = false"
+          @input="handleSeek"
+          class="w-full cursor-pointer hover:accent-blue-600"
+        />
+      </div>
     </div>
 
-    <!-- Controls -->
-    <div class="flex items-center justify-center gap-4">
+    <!-- Controls: Play/Pause, Rewind, Forward -->
+    <div class="flex items-center justify-center gap-4 mb-4">
       <button
         @click="togglePlayPause"
         class="px-6 py-2 bg-blue-500 text-white rounded font-semibold hover:bg-blue-600"
@@ -49,6 +56,22 @@
       >
         +1s →
       </button>
+    </div>
+
+    <!-- Speed Control -->
+    <div class="flex items-center justify-center gap-3 mb-4">
+      <label class="text-sm font-medium">Playback Speed:</label>
+      <select
+        v-model.number="playbackSpeed"
+        @change="changeSpeed"
+        class="border border-gray-300 rounded px-3 py-1 bg-white text-sm font-semibold hover:border-blue-400"
+      >
+        <option value="0.75">0.75x</option>
+        <option value="1">1x</option>
+        <option value="1.25">1.25x</option>
+        <option value="1.5">1.5x</option>
+        <option value="2">2x</option>
+      </select>
     </div>
 
     <!-- Audio Info -->
@@ -77,6 +100,9 @@ const audioElement = ref<HTMLAudioElement>();
 const isPlaying = ref(false);
 const currentTime = ref(0);
 const duration = ref(0);
+const playbackSpeed = ref(1);
+const isSeeking = ref(false);
+const seekValue = ref(0);
 
 function formatTime(seconds: number): string {
   if (isNaN(seconds)) return '0:00';
@@ -96,9 +122,9 @@ function togglePlayPause() {
   isPlaying.value = !isPlaying.value;
 }
 
-function seek() {
-  if (audioElement.value) {
-    audioElement.value.currentTime = currentTime.value;
+function handleSeek() {
+  if (audioElement.value && isSeeking.value) {
+    audioElement.value.currentTime = seekValue.value;
   }
 }
 
@@ -106,6 +132,7 @@ function rewind() {
   if (audioElement.value) {
     audioElement.value.currentTime = Math.max(0, audioElement.value.currentTime - 1);
     currentTime.value = audioElement.value.currentTime;
+    seekValue.value = audioElement.value.currentTime;
   }
 }
 
@@ -113,12 +140,20 @@ function forward() {
   if (audioElement.value) {
     audioElement.value.currentTime = Math.min(duration.value, audioElement.value.currentTime + 1);
     currentTime.value = audioElement.value.currentTime;
+    seekValue.value = audioElement.value.currentTime;
   }
 }
 
 function updateTime() {
-  if (audioElement.value) {
+  if (audioElement.value && !isSeeking.value) {
     currentTime.value = audioElement.value.currentTime;
+    seekValue.value = audioElement.value.currentTime;
+  }
+}
+
+function changeSpeed() {
+  if (audioElement.value) {
+    audioElement.value.playbackRate = playbackSpeed.value;
   }
 }
 
