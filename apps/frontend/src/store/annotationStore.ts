@@ -96,7 +96,7 @@ export const useAnnotationStore = defineStore('annotation', () => {
     annotations.value = annotations.value.filter(a => a.id !== id);
   };
 
-  // Fetch transcripts from backend
+  // Fetch transcripts from backend (queue list)
   const fetchTranscripts = async () => {
     loading.value = true;
     error.value = null;
@@ -111,6 +111,27 @@ export const useAnnotationStore = defineStore('annotation', () => {
       console.error('❌ Failed to load transcripts:', error.value);
     } finally {
       loading.value = false;
+    }
+  };
+
+  // Fetch full transcript by ID (originalText + correctedText)
+  const fetchTranscriptFull = async (id: string) => {
+    try {
+      const response = await fetch(`/api/transcript/${id}`);
+      if (!response.ok) throw new Error('Failed to fetch transcript');
+      const data = await response.json();
+
+      // Update transcript in store with full content
+      const idx = transcripts.value.findIndex(t => t.id === id);
+      if (idx >= 0) {
+        transcripts.value[idx] = {
+          ...transcripts.value[idx],
+          originalText: data.originalText,
+          correctedText: data.correctedText
+        };
+      }
+    } catch (err) {
+      console.error(`❌ Failed to load transcript ${id}:`, err);
     }
   };
 
@@ -138,6 +159,7 @@ export const useAnnotationStore = defineStore('annotation', () => {
     addAnnotation,
     updateAnnotation,
     deleteAnnotation,
-    fetchTranscripts
+    fetchTranscripts,
+    fetchTranscriptFull
   };
 });

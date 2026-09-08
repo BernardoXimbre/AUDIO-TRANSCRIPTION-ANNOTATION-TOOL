@@ -126,9 +126,7 @@ watch(
     if (transcript && transcript.audioFile) {
       // Point directly to backend (not through proxy)
       const audioSrc = `http://localhost:5000/uploads/audio/permanent/${transcript.audioFile.filename}`;
-      
-      console.log('🎵 Loading audio:', { url: transcript.audioFile.url, audioSrc, filename: transcript.audioFile.filename });
-      
+
       audioElement.value.src = audioSrc;
       audioElement.value.load();
     }

@@ -11,11 +11,9 @@
         <AudioPlayer />
       </template>
 
-      <!-- CENTER: Transcripts (placeholder - Task 5.4) -->
+      <!-- CENTER: Transcripts (Task 5.4) -->
       <template #center>
-        <div class="flex items-center justify-center h-full text-slate-400">
-          <p class="text-sm">Transcripts Editor (Task 5.4)</p>
-        </div>
+        <DualTranscriptView />
       </template>
 
       <!-- RIGHT PANEL: Span Inspector (placeholder - Task 5.5) -->
@@ -37,6 +35,7 @@ import { useAnnotationStore } from '@/store/annotationStore';
 import Main3PanelLayout from '@/components/Main3PanelLayout.vue';
 import WorkQueue from '@/components/WorkQueue.vue';
 import AudioPlayer from '@/components/AudioPlayer.vue';
+import DualTranscriptView from '@/components/DualTranscriptView.vue';
 import IngestModal from '@/components/IngestModal.vue';
 
 const store = useAnnotationStore();
