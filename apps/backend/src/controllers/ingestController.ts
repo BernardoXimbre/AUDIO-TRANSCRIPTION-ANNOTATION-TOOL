@@ -1,4 +1,5 @@
 import { Request, Response } from 'express';
+import fs from 'fs';
 import { ingestService } from '../services/ingestService';
 import { validateAudioFileFromPath, validateBatchSize, sanitizeFilename } from '../middleware/uploadValidator';
 
@@ -19,24 +20,54 @@ interface ParsedTranscript {
 
 export async function ingestAudio(req: Request, res: Response) {
   try {
-    const files = (req as unknown as MulterRequest).files || [];
+    const allFiles = (req as unknown as MulterRequest).files || [];
 
-    if (!files || files.length === 0) {
+    if (!allFiles || allFiles.length === 0) {
       return res.status(400).json({
         error: 'NO_FILES_PROVIDED',
+        reason: 'No files were uploaded',
+        status: 400
+      });
+    }
+
+    // Separate audio files from transcript files
+    const audioFiles: Express.Multer.File[] = [];
+    let transcriptFile: Express.Multer.File | undefined;
+
+    for (const file of allFiles) {
+      if (file.fieldname === 'transcripts' || file.originalname?.endsWith('.json')) {
+        if (!transcriptFile) {
+          transcriptFile = file;
+        }
+      } else {
+        audioFiles.push(file);
+      }
+    }
+
+    if (audioFiles.length === 0) {
+      return res.status(400).json({
+        error: 'NO_AUDIO_FILES_PROVIDED',
         reason: 'No audio files were uploaded',
         status: 400
       });
     }
 
     let transcripts: ParsedTranscript[] = [];
+    let transcriptContent: string | undefined;
 
-    // Parse transcript JSON from request body
+    // Get transcript from either request body or uploaded file
     if (req.body.transcripts) {
+      transcriptContent = typeof req.body.transcripts === 'string'
+        ? req.body.transcripts
+        : JSON.stringify(req.body.transcripts);
+    } else if (transcriptFile) {
+      transcriptContent = fs.readFileSync(transcriptFile.path, 'utf-8');
+    }
+
+    // Parse transcript JSON
+    if (transcriptContent) {
       try {
-        transcripts = typeof req.body.transcripts === 'string'
-          ? JSON.parse(req.body.transcripts)
-          : req.body.transcripts;
+        transcripts = JSON.parse(transcriptContent);
 
         // Validate transcript format
         if (!Array.isArray(transcripts)) {
@@ -67,13 +98,13 @@ export async function ingestAudio(req: Request, res: Response) {
     } else {
       return res.status(400).json({
         error: 'NO_TRANSCRIPTS_PROVIDED',
-        reason: 'No transcript JSON was provided in request body',
+        reason: 'No transcript JSON was provided in request body or as uploaded file',
         status: 400
       });
     }
 
     // Validate batch size
-    const totalSize = files.reduce((sum, f) => sum + (f.size || 0), 0);
+    const totalSize = audioFiles.reduce((sum, f) => sum + (f.size || 0), 0);
     const batchSizeValidation = validateBatchSize(totalSize);
     if (!batchSizeValidation.valid) {
       return res.status(400).json({
@@ -83,11 +114,11 @@ export async function ingestAudio(req: Request, res: Response) {
       });
     }
 
-    // Validate each file
+    // Validate each audio file
     const validationErrors: ValidationError[] = [];
     const validFiles: Express.Multer.File[] = [];
 
-    for (const file of files) {
+    for (const file of audioFiles) {
       // Use path-based validation since multer saves to disk
       const fileValidation = await validateAudioFileFromPath(file.path, file.originalname);
       if (!fileValidation.valid) {
@@ -107,7 +138,7 @@ export async function ingestAudio(req: Request, res: Response) {
         error: 'VALIDATION_FAILED',
         invalidFiles: validationErrors,
         validCount: validFiles.length,
-        totalCount: files.length,
+        totalCount: audioFiles.length,
         status: 400
       });
     }

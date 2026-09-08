@@ -138,17 +138,37 @@ const submitIngest = async () => {
     return;
   }
 
-  console.log('📤 Ingesting:');
-  console.log(`  Audio files: ${audioFiles.value.length}`);
-  audioFiles.value.forEach(f => console.log(`    - ${f.name}`));
+  try {
+    const formData = new FormData();
 
-  if (transcriptMode.value === 'file') {
-    console.log(`  Transcript file: ${transcriptFile.value?.name}`);
-  } else {
-    console.log('  Transcript: Pasted JSON');
+    // Add audio files
+    audioFiles.value.forEach(file => {
+      formData.append('audio', file);
+    });
+
+    // Add transcript (must be named 'transcripts' for backend)
+    if (transcriptMode.value === 'file' && transcriptFile.value) {
+      formData.append('transcripts', transcriptFile.value);
+    } else {
+      formData.append('transcripts', transcriptText.value);
+    }
+
+    const response = await fetch('/api/ingest', {
+      method: 'POST',
+      body: formData
+    });
+
+    if (!response.ok) {
+      const error = await response.json();
+      throw new Error(error.reason || error.error || 'Ingest failed');
+    }
+
+    // Reload queue from backend
+    await store.fetchTranscripts();
+    closeModal();
+  } catch (err) {
+    console.error('❌ Ingest error:', err);
+    alert(`Ingest failed: ${err instanceof Error ? err.message : 'Unknown error'}`);
   }
-
-  // TODO: Upload to backend
-  closeModal();
 };
 </script>

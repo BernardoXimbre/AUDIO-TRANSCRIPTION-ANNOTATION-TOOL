@@ -5,9 +5,11 @@ export interface AudioFile {
   id: string;
   filename: string;
   duration: number;
-  sampleRate: number | null;
-  channels: number | null;
-  bitDepth: number | null;
+  url?: string;
+  filepath?: string;
+  sampleRate?: number | null;
+  channels?: number | null;
+  bitDepth?: number | null;
 }
 
 export interface Annotation {
@@ -23,11 +25,12 @@ export interface Annotation {
 
 export interface Transcript {
   id: string;
-  audioFileId: string;
+  audioFileId?: string;
   audioFile: AudioFile;
-  originalText: string;
-  correctedText: string;
+  originalText?: string;
+  correctedText?: string;
   status: 'pending' | 'in_progress' | 'completed';
+  annotator?: string | null;
   createdAt?: string;
   updatedAt?: string;
 }
@@ -42,6 +45,8 @@ export const useAnnotationStore = defineStore('annotation', () => {
   const ingestModalOpen = ref(false);
   const playbackTime = ref(0);
   const isPlaying = ref(false);
+  const loading = ref(false);
+  const error = ref<string | null>(null);
 
   // Actions
   const selectTranscript = (id: string) => {
@@ -91,6 +96,24 @@ export const useAnnotationStore = defineStore('annotation', () => {
     annotations.value = annotations.value.filter(a => a.id !== id);
   };
 
+  // Fetch transcripts from backend
+  const fetchTranscripts = async () => {
+    loading.value = true;
+    error.value = null;
+    try {
+      const response = await fetch('/api/queue');
+      if (!response.ok) throw new Error('Failed to fetch queue');
+      const data = await response.json();
+      // API returns { success, count, items }
+      loadTranscripts(data.items || []);
+    } catch (err) {
+      error.value = err instanceof Error ? err.message : 'Unknown error';
+      console.error('❌ Failed to load transcripts:', error.value);
+    } finally {
+      loading.value = false;
+    }
+  };
+
   return {
     // State
     currentTranscriptId,
@@ -101,6 +124,8 @@ export const useAnnotationStore = defineStore('annotation', () => {
     ingestModalOpen,
     playbackTime,
     isPlaying,
+    loading,
+    error,
     // Actions
     selectTranscript,
     selectAnnotation,
@@ -112,6 +137,7 @@ export const useAnnotationStore = defineStore('annotation', () => {
     loadTranscripts,
     addAnnotation,
     updateAnnotation,
-    deleteAnnotation
+    deleteAnnotation,
+    fetchTranscripts
   };
 });
