@@ -76,6 +76,10 @@
 /* global URLSearchParams */
 import { ref, onMounted } from 'vue';
 
+const emit = defineEmits<{
+  itemSelected: [item: QueueItem]
+}>();
+
 interface AudioFile {
   id: string;
   filename: string;
@@ -142,9 +146,7 @@ function statusBadgeClass(status: string): string {
 }
 
 function selectItem(item: QueueItem) {
-  console.log('Selected item:', item);
-  // TODO: Navigate to annotator view
-  // router.push({ name: 'annotator', params: { id: item.id } });
+  emit('itemSelected', item);
 }
 
 onMounted(() => {

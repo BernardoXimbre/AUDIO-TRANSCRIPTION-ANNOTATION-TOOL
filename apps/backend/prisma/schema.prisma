@@ -13,6 +13,7 @@ model AudioFile {
   id           String   @id @default(cuid())
   filename     String
   filepath     String   @unique
+  url          String   // URL para acessar o arquivo (ex: /uploads/permanent/filename)
   duration     Float    // seconds
   sampleRate   Int      // Hz (e.g., 16000)
   channels     Int      // 1, 2

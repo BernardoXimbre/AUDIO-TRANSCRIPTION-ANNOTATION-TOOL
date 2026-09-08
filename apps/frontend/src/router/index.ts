@@ -2,6 +2,7 @@ import { createRouter, createWebHistory } from 'vue-router';
 import Home from '../views/Home.vue';
 import Upload from '../components/Upload.vue';
 import Queue from '../views/Queue.vue';
+import PlayerDemo from '../views/PlayerDemo.vue';
 
 const routes = [
   {
@@ -18,6 +19,11 @@ const routes = [
     path: '/queue',
     component: Queue,
     name: 'Queue'
+  },
+  {
+    path: '/player-demo',
+    component: PlayerDemo,
+    name: 'PlayerDemo'
   }
 ];
 

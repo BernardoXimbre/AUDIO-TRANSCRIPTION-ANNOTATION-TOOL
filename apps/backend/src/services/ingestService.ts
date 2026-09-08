@@ -165,10 +165,12 @@ export const ingestService = {
           fs.copyFileSync(audioFileObj.path, permanentPath);
           fs.unlinkSync(audioFileObj.path); // Remove temp file
 
-          // Create AudioFile record
+          // Create AudioFile record with URL for static serving
+          const audioUrl = `/audio/permanent/${sanitizedFilename}`;
           const audioFile = await audioFileRepository.create({
             filename: sanitizedFilename,
             filepath: permanentPath,
+            url: audioUrl,
             duration,
             sampleRate,
             channels,
@@ -231,6 +233,7 @@ export const ingestService = {
         select: {
           id: true,
           filename: true,
+          url: true,
           duration: true,
           filepath: true,
           sampleRate: true,

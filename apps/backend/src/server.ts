@@ -1,12 +1,13 @@
 import express, { Express, Request, Response, NextFunction } from 'express';
 import cors from 'cors';
 import multer from 'multer';
+import path from 'path';
 import { PrismaClient } from '@prisma/client';
 import { ingestAudio, getQueue } from './controllers/ingestController';
 
 const app: Express = express();
 const PORT = process.env.PORT || 5000;
-const AUDIO_UPLOAD_DIR = process.env.AUDIO_UPLOAD_DIR || './uploads';
+const AUDIO_UPLOAD_DIR = process.env.AUDIO_UPLOAD_DIR || path.join(__dirname, '..', '..', 'uploads');
 const AUDIO_UPLOAD_LIMIT = process.env.MAX_FILE_SIZE_MB ? parseInt(process.env.MAX_FILE_SIZE_MB) * 1024 * 1024 : 100 * 1024 * 1024; // 100MB per file
 
 const prisma = new PrismaClient();
@@ -21,6 +22,9 @@ const upload = multer({
 app.use(cors());
 app.use(express.json({ limit: '100mb' }));
 app.use(express.urlencoded({ limit: '100mb', extended: true }));
+
+// Static file serving for audio files
+app.use('/uploads', express.static('./uploads'));
 
 // Health check
 app.get('/health', (req: Request, res: Response) => {
