@@ -6,10 +6,15 @@
         <WorkQueue />
       </template>
 
-      <!-- CENTER PANEL: Player + Transcripts (placeholders - Tasks 5.3 & 5.4) -->
+      <!-- CENTER TOP: Audio Player (Task 5.3) -->
+      <template #center-top>
+        <AudioPlayer />
+      </template>
+
+      <!-- CENTER: Transcripts (placeholder - Task 5.4) -->
       <template #center>
         <div class="flex items-center justify-center h-full text-slate-400">
-          <p class="text-sm">Audio Player & Transcripts (Tasks 5.3 & 5.4)</p>
+          <p class="text-sm">Transcripts Editor (Task 5.4)</p>
         </div>
       </template>
 
@@ -31,6 +36,7 @@ import { onMounted } from 'vue';
 import { useAnnotationStore } from '@/store/annotationStore';
 import Main3PanelLayout from '@/components/Main3PanelLayout.vue';
 import WorkQueue from '@/components/WorkQueue.vue';
+import AudioPlayer from '@/components/AudioPlayer.vue';
 import IngestModal from '@/components/IngestModal.vue';
 
 const store = useAnnotationStore();

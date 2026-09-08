@@ -12,7 +12,15 @@
 
       <!-- CENTER PANEL: Player + Transcripts -->
       <main class="flex-1 flex flex-col overflow-hidden bg-white">
-        <slot name="center" />
+        <!-- Center Top: Audio Player -->
+        <div class="shrink-0">
+          <slot name="center-top" />
+        </div>
+
+        <!-- Center Content: Transcripts (flex-1 takes remaining space) -->
+        <div class="flex-1 overflow-auto">
+          <slot name="center" />
+        </div>
       </main>
 
       <!-- RIGHT PANEL: Span Inspector (320px) -->

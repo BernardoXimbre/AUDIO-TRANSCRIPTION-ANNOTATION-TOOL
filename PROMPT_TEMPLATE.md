@@ -99,8 +99,7 @@ Keep the implementation consistent with:
 
 ## >>> CHANGE ONLY THIS SECTION <<<
 
-- I want to refactor our fronent to follow our design in template.html. make only the task 5.2.
-- fix the upload logic.
+- I want to refactor our fronent to follow our design in template.html. make only the task 5.3
 ## <<< END OF CHANGE SECTION >>>
 
 ---
