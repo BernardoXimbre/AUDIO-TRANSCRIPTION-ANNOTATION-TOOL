@@ -21,6 +21,11 @@
       <RecordingConditions :audioFileId="selectedItem.audioFile.id" />
     </div>
 
+    <!-- Annotation Editor (replaces old Transcript Editor) -->
+    <div v-if="selectedItem?.id" class="mb-6">
+      <AnnotationEditor :transcriptId="selectedItem.id" />
+    </div>
+
     <hr class="my-6" />
 
     <h2 class="text-2xl font-bold mb-4">Work Queue</h2>
@@ -33,6 +38,7 @@ import { ref } from 'vue';
 import Player from '../components/Player.vue';
 import WorkQueue from '../components/WorkQueue.vue';
 import RecordingConditions from '../components/RecordingConditions.vue';
+import AnnotationEditor from '../components/AnnotationEditor.vue';
 
 interface AudioFile {
   id: string;
@@ -45,7 +51,7 @@ interface AudioFile {
 }
 
 interface QueueItem {
-  id: string;
+  id: string; // This is the Transcript ID
   status: string;
   annotator: string | null;
   audioFile: AudioFile;

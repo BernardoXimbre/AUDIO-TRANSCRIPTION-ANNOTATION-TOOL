@@ -90,7 +90,7 @@ interface AudioFile {
 }
 
 interface QueueItem {
-  id: string;
+  id: string; // This is the Transcript ID
   status: string;
   annotator: string | null;
   audioFile: AudioFile;
