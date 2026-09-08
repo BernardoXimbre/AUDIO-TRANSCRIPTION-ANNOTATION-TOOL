@@ -99,7 +99,8 @@ Keep the implementation consistent with:
 
 ## >>> CHANGE ONLY THIS SECTION <<<
 
-I want to refactor our fronent to follow our design in template.html. make a task list.
+I want to refactor our fronent to follow our design in template.html. make only the task 5.1
+<span><kbd>Space</kbd> Play/Pause</span> space its not interesting to have as a key because of writing choose other.
 ## <<< END OF CHANGE SECTION >>>
 
 ---

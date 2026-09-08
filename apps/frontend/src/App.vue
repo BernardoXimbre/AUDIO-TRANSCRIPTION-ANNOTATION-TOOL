@@ -1,82 +1,34 @@
 <template>
-  <div>
-    <nav class="navbar">
-      <div class="nav-container">
-        <router-link to="/" class="nav-brand">🎙️ Audio Annotation</router-link>
-        <div class="nav-links">
-          <router-link to="/" class="nav-link">Home</router-link>
-          <router-link to="/upload" class="nav-link">Upload</router-link>
-          <router-link to="/queue" class="nav-link">Queue</router-link>
-          <router-link to="/export" class="nav-link">Export</router-link>
+  <div class="h-screen w-screen flex flex-col bg-slate-50">
+    <Main3PanelLayout>
+      <!-- LEFT PANEL: Work Queue (placeholder - Task 5.2) -->
+      <template #left>
+        <div class="flex items-center justify-center h-full text-slate-400">
+          <p class="text-sm">Work Queue (Task 5.2)</p>
         </div>
-      </div>
-    </nav>
-    <router-view />
+      </template>
+
+      <!-- CENTER PANEL: Player + Transcripts (placeholders - Task 5.3 & 5.4) -->
+      <template #center>
+        <div class="flex items-center justify-center h-full text-slate-400">
+          <p class="text-sm">Audio Player & Transcripts (Tasks 5.3 & 5.4)</p>
+        </div>
+      </template>
+
+      <!-- RIGHT PANEL: Span Inspector (placeholder - Task 5.5) -->
+      <template #right>
+        <div class="flex items-center justify-center h-full text-slate-400">
+          <p class="text-sm">Span Inspector (Task 5.5)</p>
+        </div>
+      </template>
+    </Main3PanelLayout>
+
+    <!-- Ingest Modal -->
+    <IngestModal />
   </div>
 </template>
 
 <script setup lang="ts">
-// App root component with router view
+import Main3PanelLayout from '@/components/Main3PanelLayout.vue';
+import IngestModal from '@/components/IngestModal.vue';
 </script>
-
-<style>
-body {
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
-  margin: 0;
-  padding: 0;
-  background-color: #f5f5f5;
-}
-
-#app {
-  min-height: 100vh;
-}
-
-.navbar {
-  background: #ffffff;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-  padding: 0;
-  margin: 0;
-  border-bottom: 1px solid #e0e0e0;
-}
-
-.nav-container {
-  max-width: 1200px;
-  margin: 0 auto;
-  padding: 1rem 20px;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-}
-
-.nav-brand {
-  font-size: 1.5rem;
-  font-weight: bold;
-  color: #007bff;
-  text-decoration: none;
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-}
-
-.nav-links {
-  display: flex;
-  gap: 2rem;
-}
-
-.nav-link {
-  color: #666;
-  text-decoration: none;
-  font-weight: 500;
-  transition: color 0.2s;
-}
-
-.nav-link:hover {
-  color: #007bff;
-}
-
-.nav-link.router-link-active {
-  color: #007bff;
-  border-bottom: 2px solid #007bff;
-  padding-bottom: 0.25rem;
-}
-</style>
