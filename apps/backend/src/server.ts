@@ -4,6 +4,7 @@ import multer from 'multer';
 import path from 'path';
 import { PrismaClient } from '@prisma/client';
 import { ingestAudio, getQueue } from './controllers/ingestController';
+import { getRecording, updateRecording } from './controllers/recordingController';
 
 const app: Express = express();
 const PORT = process.env.PORT || 5000;
@@ -35,6 +36,8 @@ app.get('/health', (req: Request, res: Response) => {
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 app.post('/api/ingest', upload.any() as any, ingestAudio);
 app.get('/api/queue', getQueue);
+app.get('/api/recording/:audioFileId', getRecording);
+app.patch('/api/recording/:audioFileId', updateRecording);
 
 // 404 handler
 app.use((req: Request, res: Response) => {

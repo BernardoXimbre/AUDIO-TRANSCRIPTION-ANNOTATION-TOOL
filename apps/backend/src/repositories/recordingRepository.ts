@@ -7,10 +7,25 @@ export const recordingRepository = {
   },
 
   async findByAudioFileId(audioFileId: string) {
-    return prisma.recording.findUnique({ where: { audioFileId } });
+    return prisma.recording.findUnique({
+      where: { audioFileId },
+      include: {
+        audioFile: {
+          select: {
+            duration: true,
+            sampleRate: true,
+            channels: true,
+            bitDepth: true
+          }
+        }
+      }
+    });
   },
 
   async update(audioFileId: string, data: Prisma.RecordingUpdateInput) {
-    return prisma.recording.update({ where: { audioFileId }, data });
+    return prisma.recording.update({
+      where: { audioFileId },
+      data
+    });
   }
 };

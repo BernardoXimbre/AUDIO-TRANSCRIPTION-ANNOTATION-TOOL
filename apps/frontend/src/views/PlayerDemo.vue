@@ -1,5 +1,5 @@
 <template>
-  <div class="player-demo max-w-2xl mx-auto p-6">
+  <div class="player-demo max-w-4xl mx-auto p-6">
     <h1 class="text-3xl font-bold mb-4">Audio Player Demo</h1>
 
     <div v-if="selectedItem" class="mb-6 p-4 bg-blue-50 rounded border border-blue-200">
@@ -16,6 +16,11 @@
       ⚠️ Select an item from the queue to play audio
     </div>
 
+    <!-- Recording Conditions -->
+    <div v-if="selectedItem?.audioFile.id" class="mb-6">
+      <RecordingConditions :audioFileId="selectedItem.audioFile.id" />
+    </div>
+
     <hr class="my-6" />
 
     <h2 class="text-2xl font-bold mb-4">Work Queue</h2>
@@ -27,6 +32,7 @@
 import { ref } from 'vue';
 import Player from '../components/Player.vue';
 import WorkQueue from '../components/WorkQueue.vue';
+import RecordingConditions from '../components/RecordingConditions.vue';
 
 interface AudioFile {
   id: string;

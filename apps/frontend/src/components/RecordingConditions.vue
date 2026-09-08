@@ -1,0 +1,139 @@
+<template>
+  <div class="recording-conditions p-4 bg-white border rounded-lg">
+    <div class="flex justify-between items-center mb-4">
+      <h3 class="text-lg font-bold">Recording Conditions</h3>
+      <button
+        @click="toggleEdit"
+        class="text-sm px-3 py-1 bg-gray-300 rounded hover:bg-gray-400"
+      >
+        {{ isEditing ? '✓ Save' : '✏ Edit' }}
+      </button>
+    </div>
+
+    <!-- Read-only Section -->
+    <div class="grid grid-cols-2 gap-4 mb-6 pb-4 border-b">
+      <div>
+        <label class="text-xs text-gray-500">Duration</label>
+        <div class="text-lg font-semibold">{{ duration.toFixed(1) }}s</div>
+      </div>
+      <div>
+        <label class="text-xs text-gray-500">Sample Rate</label>
+        <div class="text-lg font-semibold">{{ sampleRate }} Hz</div>
+      </div>
+      <div>
+        <label class="text-xs text-gray-500">Channels</label>
+        <div class="text-lg font-semibold">{{ channels === 1 ? 'Mono' : 'Stereo' }}</div>
+      </div>
+      <div>
+        <label class="text-xs text-gray-500">Bit Depth</label>
+        <div class="text-lg font-semibold">{{ bitDepth }} bit</div>
+      </div>
+    </div>
+
+    <!-- Editable Section -->
+    <div class="grid grid-cols-2 gap-4">
+      <div>
+        <label class="text-xs text-gray-500">Speech Rate (WPM)</label>
+        <input
+          v-model.number="speechRate"
+          :disabled="!isEditing"
+          type="number"
+          class="w-full px-2 py-1 border rounded disabled:bg-gray-100"
+        />
+      </div>
+      <div>
+        <label class="text-xs text-gray-500">Distance Estimate</label>
+        <select
+          v-model="distanceEstimate"
+          :disabled="!isEditing"
+          class="w-full px-2 py-1 border rounded disabled:bg-gray-100"
+        >
+          <option value="close">Close</option>
+          <option value="medium">Medium</option>
+          <option value="far">Far</option>
+        </select>
+      </div>
+    </div>
+
+    <div class="mt-4 text-xs text-gray-500">
+      Distance estimated via: RMS level analysis
+    </div>
+  </div>
+</template>
+
+<script setup lang="ts">
+import { ref, onMounted } from 'vue';
+
+interface RecordingData {
+  audioFileId: string;
+  duration: number;
+  sampleRate: number;
+  channels: number;
+  bitDepth: number;
+  speechRate: number;
+  distanceEstimate: string;
+}
+
+const props = defineProps<{
+  audioFileId: string;
+}>();
+
+const isEditing = ref(false);
+const duration = ref(0);
+const sampleRate = ref(0);
+const channels = ref(1);
+const bitDepth = ref(16);
+const speechRate = ref(0);
+const distanceEstimate = ref('medium');
+
+async function loadRecordingData() {
+  try {
+    const response = await fetch(`http://localhost:5000/api/recording/${props.audioFileId}`);
+    if (!response.ok) throw new Error('Failed to load recording data');
+
+    const data: RecordingData = await response.json();
+    duration.value = data.duration;
+    sampleRate.value = data.sampleRate;
+    channels.value = data.channels;
+    bitDepth.value = data.bitDepth;
+    speechRate.value = data.speechRate;
+    distanceEstimate.value = data.distanceEstimate;
+  } catch (error) {
+    console.error('Error loading recording data:', error);
+  }
+}
+
+async function toggleEdit() {
+  if (isEditing.value) {
+    // Save changes
+    try {
+      const response = await fetch(`http://localhost:5000/api/recording/${props.audioFileId}`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          speechRate: speechRate.value,
+          distanceEstimate: distanceEstimate.value
+        })
+      });
+
+      if (!response.ok) throw new Error('Failed to save');
+
+      isEditing.value = false;
+    } catch (error) {
+      console.error('Error saving:', error);
+    }
+  } else {
+    isEditing.value = true;
+  }
+}
+
+onMounted(() => {
+  loadRecordingData();
+});
+</script>
+
+<style scoped>
+.recording-conditions {
+  background: #f9fafb;
+}
+</style>
