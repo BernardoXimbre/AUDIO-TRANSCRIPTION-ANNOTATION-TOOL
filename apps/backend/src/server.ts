@@ -7,6 +7,7 @@ import { ingestAudio, getQueue } from './controllers/ingestController';
 import { getRecording, updateRecording } from './controllers/recordingController';
 import { annotationController } from './controllers/annotationController';
 import { transcriptController } from './controllers/transcriptController';
+import { exportController } from './controllers/exportController';
 
 const app: Express = express();
 const PORT = process.env.PORT || 5000;
@@ -40,6 +41,7 @@ app.post('/api/ingest', upload.any() as any, ingestAudio);
 app.get('/api/queue', getQueue);
 app.get('/api/recording/:audioFileId', getRecording);
 app.patch('/api/recording/:audioFileId', updateRecording);
+app.post('/api/export', exportController.exportDataset);
 app.use('/api/transcript', transcriptController);
 app.use('/api/annotation', annotationController);
 

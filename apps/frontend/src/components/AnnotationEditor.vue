@@ -70,31 +70,31 @@ function formatAttributes(type: string, attributes: Record<string, unknown>): st
   const parts: string[] = [];
   
   switch (type) {
-    case 'CRUD':
-      return 'No specific attributes';
-    case 'NUMBER':
-      parts.push(`rendering: ${attributes.rendering}`);
-      parts.push(`value: ${attributes.value}`);
-      break;
-    case 'FORMATTING_COMMAND':
-      parts.push(`command: ${attributes.command}`);
-      parts.push(`isLiteral: ${attributes.isLiteral}`);
-      break;
-    case 'SPELLED_OUT':
-      parts.push(`resolved: ${attributes.resolved}`);
-      break;
-    case 'NAMED_ENTITY':
-      parts.push(`category: ${attributes.category}`);
-      break;
-    case 'MEDICAL_TERM':
-      parts.push(`category: ${attributes.category}`);
-      if (attributes.note) parts.push(`note: ${attributes.note}`);
-      break;
-    case 'MEASUREMENT':
-      parts.push(`value: ${attributes.value}`);
-      parts.push(`unit: ${attributes.unit}`);
-      parts.push(`normalized: ${attributes.normalized}`);
-      break;
+  case 'CRUD':
+    return 'No specific attributes';
+  case 'NUMBER':
+    parts.push(`rendering: ${attributes.rendering}`);
+    parts.push(`value: ${attributes.value}`);
+    break;
+  case 'FORMATTING_COMMAND':
+    parts.push(`command: ${attributes.command}`);
+    parts.push(`isLiteral: ${attributes.isLiteral}`);
+    break;
+  case 'SPELLED_OUT':
+    parts.push(`resolved: ${attributes.resolved}`);
+    break;
+  case 'NAMED_ENTITY':
+    parts.push(`category: ${attributes.category}`);
+    break;
+  case 'MEDICAL_TERM':
+    parts.push(`category: ${attributes.category}`);
+    if (attributes.note) parts.push(`note: ${attributes.note}`);
+    break;
+  case 'MEASUREMENT':
+    parts.push(`value: ${attributes.value}`);
+    parts.push(`unit: ${attributes.unit}`);
+    parts.push(`normalized: ${attributes.normalized}`);
+    break;
   }
   
   return parts.length > 0 ? parts.join(', ') : '(no attributes)';

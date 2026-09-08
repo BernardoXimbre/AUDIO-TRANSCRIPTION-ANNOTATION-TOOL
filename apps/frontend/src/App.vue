@@ -7,6 +7,7 @@
           <router-link to="/" class="nav-link">Home</router-link>
           <router-link to="/upload" class="nav-link">Upload</router-link>
           <router-link to="/queue" class="nav-link">Queue</router-link>
+          <router-link to="/export" class="nav-link">Export</router-link>
         </div>
       </div>
     </nav>
