@@ -1,5 +1,4 @@
 import { prisma } from '../db';
-import * as path from 'path';
 
 interface ExportRow {
   audioPath: string;
@@ -31,7 +30,7 @@ interface ExportResult {
 export const exportService = {
   async generateJSONLByAudio(): Promise<ExportResult[]> {
     try {
-      // Fetch all transcripts grouped by audio file
+      // Fetch all transcripts
       const transcripts = await prisma.transcript.findMany({
         include: {
           audioFile: true,
@@ -43,70 +42,51 @@ export const exportService = {
         }
       });
 
-      // Group transcripts by audio file ID
-      const groupedByAudio = new Map<string, typeof transcripts>();
+      // Generate single consolidated records array
+      const records: ExportRow[] = [];
+
       for (const transcript of transcripts) {
-        if (!groupedByAudio.has(transcript.audioFileId)) {
-          groupedByAudio.set(transcript.audioFileId, []);
-        }
-        groupedByAudio.get(transcript.audioFileId)!.push(transcript);
-      }
-
-      // Generate export files for each audio
-      const results: ExportResult[] = [];
-
-      for (const [audioFileId, audioTranscripts] of groupedByAudio) {
-        const audioFile = audioTranscripts[0].audioFile;
-
-        // Generate records for this audio
-        const records: ExportRow[] = [];
-
-        for (const transcript of audioTranscripts) {
-          const recording = await prisma.recording.findFirst({
-            where: {
-              audioFileId
-            }
-          });
-
-          const row: ExportRow = {
-            audioPath: audioFile.filename,
-            duration: audioFile.duration,
-            recordingConditions: {
-              sampleRate: audioFile.sampleRate,
-              channels: audioFile.channels,
-              bitDepth: audioFile.bitDepth,
-              speechRate: recording?.speechRate ?? null,
-              distanceEstimate: recording?.distanceEstimate ?? null
-            },
-            transcript: {
-              original: transcript.originalText,
-              corrected: transcript.correctedText
-            },
-            annotations: transcript.annotations.map(ann => ({
-              type: ann.type,
-              startOffset: ann.startOffset,
-              endOffset: ann.endOffset,
-              attributes: ann.attributes as Record<string, unknown>
-            }))
-          };
-
-          records.push(row);
-        }
-
-        // Format as JSON with indentation (not JSONL, but pretty JSON)
-        const jsonContent = JSON.stringify(records, null, 2);
-
-        // Generate filename based on audio name
-        const audioNameWithoutExt = path.parse(audioFile.filename).name;
-        const filename = `annotations-${audioNameWithoutExt}.json`;
-
-        results.push({
-          filename,
-          content: jsonContent
+        const recording = await prisma.recording.findFirst({
+          where: {
+            audioFileId: transcript.audioFileId
+          }
         });
+
+        const row: ExportRow = {
+          audioPath: transcript.audioFile.filename,
+          duration: transcript.audioFile.duration,
+          recordingConditions: {
+            sampleRate: transcript.audioFile.sampleRate,
+            channels: transcript.audioFile.channels,
+            bitDepth: transcript.audioFile.bitDepth,
+            speechRate: recording?.speechRate ?? null,
+            distanceEstimate: recording?.distanceEstimate ?? null
+          },
+          transcript: {
+            original: transcript.originalText,
+            corrected: transcript.correctedText
+          },
+          annotations: transcript.annotations.map(ann => ({
+            type: ann.type,
+            startOffset: ann.startOffset,
+            endOffset: ann.endOffset,
+            attributes: ann.attributes as Record<string, unknown>
+          }))
+        };
+
+        records.push(row);
       }
 
-      return results;
+      // Format as single JSON array with indentation
+      const jsonContent = JSON.stringify(records, null, 2);
+
+      // Generate filename with export date
+      const filename = `annotations-export-${new Date().toISOString().split('T')[0]}.json`;
+
+      return [{
+        filename,
+        content: jsonContent
+      }];
     } catch (error) {
       console.error('Error generating export:', error);
       throw error;

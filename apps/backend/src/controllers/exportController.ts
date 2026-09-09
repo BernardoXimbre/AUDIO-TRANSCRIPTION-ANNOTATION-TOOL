@@ -13,22 +13,11 @@ export const exportController = {
         return;
       }
 
-      // If only one file, return it directly
-      if (results.length === 1) {
-        const { filename, content } = results[0];
-        res.setHeader('Content-Type', 'application/json');
-        res.setHeader('Content-Disposition', `attachment; filename="${filename}"`);
-        res.send(content);
-      } else {
-        // Multiple files: combine into single file with filename from first audio
-        const combinedContent = results.map(r => r.content).join('\n\n');
-        const firstAudioName = results[0].filename.replace('annotations-', '').replace('.json', '');
-        const filename = `annotations-${firstAudioName}-and-more.json`;
-
-        res.setHeader('Content-Type', 'application/json');
-        res.setHeader('Content-Disposition', `attachment; filename="${filename}"`);
-        res.send(combinedContent);
-      }
+      // Single consolidated file
+      const { filename, content } = results[0];
+      res.setHeader('Content-Type', 'application/json');
+      res.setHeader('Content-Disposition', `attachment; filename="${filename}"`);
+      res.send(content);
     } catch (error) {
       console.error('Error exporting dataset:', error);
       res.status(500).json({
