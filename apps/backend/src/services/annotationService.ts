@@ -60,7 +60,8 @@ function validateSPELLED_OUT(attributes: any): ValidateResult {
 
   const { resolved } = attributes;
 
-  if (!resolved || typeof resolved !== 'string' || resolved.trim() === '') {
+  // resolved is optional, but if provided must be non-empty string
+  if (resolved !== undefined && (typeof resolved !== 'string' || resolved.trim() === '')) {
     return { valid: false, error: 'SPELLED_OUT.resolved must be a non-empty string' };
   }
 

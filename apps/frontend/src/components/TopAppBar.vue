@@ -32,6 +32,17 @@
 
     <!-- RIGHT: Action Buttons -->
     <div class="flex items-center gap-2">
+      <!-- Save Changes -->
+      <button
+        @click="saveChanges"
+        class="flex items-center gap-1.5 px-3 py-1 text-xs bg-green-500 hover:bg-green-600 text-white font-semibold rounded transition-colors shadow-sm hover:shadow"
+        :disabled="!currentTranscript"
+      >
+        <span class="text-base">💾</span>
+        <span>Save</span>
+        <kbd class="font-mono text-xs bg-white/20 text-white px-1.5 py-0.5 rounded font-normal">Ctrl+S</kbd>
+      </button>
+
       <!-- Ingest / Upload -->
       <button
         @click="triggerUpload"
@@ -51,16 +62,6 @@
         <span class="text-base">⬇️</span>
         <span>Export JSONL</span>
         <kbd class="font-mono text-xs text-slate-500 bg-slate-100 px-1 rounded border border-slate-200">Ctrl+E</kbd>
-      </button>
-
-      <!-- Save & Next -->
-      <button
-        @click="saveNext"
-        class="flex items-center gap-1.5 px-3 py-1 text-xs bg-blue-500 hover:bg-blue-600 text-white font-semibold rounded transition-colors shadow-sm hover:shadow"
-      >
-        <span class="text-base">✓</span>
-        <span>Save & Next</span>
-        <kbd class="font-mono text-xs bg-white/20 text-white px-1.5 py-0.5 rounded font-normal">Ctrl+Enter</kbd>
       </button>
     </div>
   </header>
@@ -120,6 +121,16 @@ const triggerUpload = () => {
   store.setIngestModalOpen(true);
 };
 
+const saveChanges = async () => {
+  if (!currentTranscript.value) return;
+
+  try {
+    await store.saveAllChanges(currentTranscript.value.id);
+  } catch {
+    console.error('❌ Save failed');
+  }
+};
+
 const exportJSONL = async () => {
   try {
     const response = await fetch('/api/export', {
@@ -140,12 +151,6 @@ const exportJSONL = async () => {
     }
   } catch (error) {
     console.error('Export error:', error);
-    alert('Failed to export');
   }
-};
-
-const saveNext = async () => {
-  console.log('Save & Next - not implemented yet');
-  // TODO: Save current transcript and navigate to next
 };
 </script>

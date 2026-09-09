@@ -124,17 +124,14 @@ const closeModal = () => {
 
 const submitIngest = async () => {
   if (audioFiles.value.length === 0) {
-    alert('Please select audio files');
     return;
   }
 
   if (transcriptMode.value === 'file' && !transcriptFile.value) {
-    alert('Please select a transcript file');
     return;
   }
 
   if (transcriptMode.value === 'paste' && !transcriptText.value.trim()) {
-    alert('Please paste transcript JSON');
     return;
   }
 
@@ -168,7 +165,6 @@ const submitIngest = async () => {
     closeModal();
   } catch (err) {
     console.error('❌ Ingest error:', err);
-    alert(`Ingest failed: ${err instanceof Error ? err.message : 'Unknown error'}`);
   }
 };
 </script>

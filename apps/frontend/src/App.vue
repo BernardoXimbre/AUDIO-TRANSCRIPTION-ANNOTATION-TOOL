@@ -16,11 +16,9 @@
         <DualTranscriptView />
       </template>
 
-      <!-- RIGHT PANEL: Span Inspector (placeholder - Task 5.5) -->
+      <!-- RIGHT PANEL: Span Inspector (Task 5.5) -->
       <template #right>
-        <div class="flex items-center justify-center h-full text-slate-400">
-          <p class="text-sm">Span Inspector (Task 5.5)</p>
-        </div>
+        <SpanInspector />
       </template>
     </Main3PanelLayout>
 
@@ -36,6 +34,7 @@ import Main3PanelLayout from '@/components/Main3PanelLayout.vue';
 import WorkQueue from '@/components/WorkQueue.vue';
 import AudioPlayer from '@/components/AudioPlayer.vue';
 import DualTranscriptView from '@/components/DualTranscriptView.vue';
+import SpanInspector from '@/components/SpanInspector.vue';
 import IngestModal from '@/components/IngestModal.vue';
 
 const store = useAnnotationStore();
