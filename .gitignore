@@ -59,11 +59,7 @@ data/
 
 # Audio uploads (generated during testing/development)
 uploads/
-test_audio/
 data/demo/audio/
-*.wav
-*.mp3
-*.m4a
 
 # Transcripts/Results (generated)
 export.jsonl

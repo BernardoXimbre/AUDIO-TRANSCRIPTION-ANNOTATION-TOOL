@@ -1,0 +1,14 @@
+[
+  {
+    "path": "audio/01_cardiac_case.mp3",
+    "label": "Einnundfünfzig jährige Patientin mit anamnese von Hypertonie und Hyperlipidämie. EKG zeigt ST Strecken Elevation im anterolateralen Bereich. Troponin T erhöht auf zwei Komma fünf Nanogramm pro Milliliter. Diagnose: akutes Koronarsyndrom. Katheterisierung durchgeführt, Stent in LAD platziert. Patient war perioperativ stabil, Blutdruck stabil bei einhundertfünfzehn zu siebzig Millimeter Quecksilber. keine Komplikationen während des Eingriffs beobachtet."
+  },
+  {
+    "path": "audio/02_orthopedic_case.mp3",
+    "label": "Polytrauma Patient: zwoelf jähriger Junge nach Sturz von vier Meter Höhe. Röntgen zeigt Fraktur des linken Femurs Schaft, Tibia Kopf Fraktur rechts und Salter-Harris Grad zwei Fraktur der distalen Radius Epiphyse links. Notfall Operation indiziert. Anästhesie mit Propofol zwei mg pro Kilogramm, Rocuronium null Komma sechs mg pro Kilogramm. OP Dauer eins Stunde fünfundvierzig Minuten. Blutverlust geschätzt dreihundert bis vierhundert Milliliter. Patient extubiert nach OP, Vitalparameter stabil, Schmerzskala VAS drei von zehn."
+  },
+  {
+    "path": "audio/04_rejected_case.mp3",
+    "label": "Kurze Notiz: Blutdruck erhöht auf einhundertachtzig zu einhundertzwanzig. Diuretikum verabreicht."
+  }
+]
