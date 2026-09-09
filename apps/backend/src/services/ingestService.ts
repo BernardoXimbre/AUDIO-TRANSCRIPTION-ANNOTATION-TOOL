@@ -5,6 +5,8 @@ import { transcriptRepository } from '../repositories/transcriptRepository';
 import { recordingRepository } from '../repositories/recordingRepository';
 import * as fs from 'fs';
 import * as path from 'path';
+import { execSync } from 'child_process';
+import ffmpegStatic from 'ffmpeg-static';
 
 const UPLOAD_DIR = process.env.AUDIO_UPLOAD_DIR || './uploads';
 const AUTO_REJECT_DURATION_SECONDS = 15;
@@ -63,12 +65,63 @@ function calculateSpeechRate(text: string, durationSeconds: number): number {
 }
 
 /**
- * Estimate distance category (simplified)
+ * Estimate microphone distance based on RMS (Root Mean Square) of audio signal
+ * Extracts raw audio data using ffmpeg and calculates RMS
+ * @param filePath Path to audio file
+ * @returns 'close' (high amplitude), 'medium' (normal), or 'far' (low amplitude)
  */
-function estimateDistance(): string {
-  // TODO: Implement RMS level analysis
-  // For now, return placeholder
-  return 'medium';
+async function estimateDistance(filePath: string): Promise<string> {
+  try {
+    if (!ffmpegStatic) {
+      return 'medium'; // Fallback if ffmpeg not available
+    }
+
+    // Extract raw PCM data using ffmpeg
+    // -f s16le: signed 16-bit little-endian PCM
+    // pipe:1: output to stdout
+    const cmd = `"${ffmpegStatic}" -i "${filePath}" -f s16le -c:a pcm_s16le pipe:1 2>/dev/null`;
+
+    let output: Buffer;
+    try {
+      output = execSync(cmd, {
+        encoding: null, // binary output
+        maxBuffer: 10 * 1024 * 1024, // 10MB max
+        timeout: 10000
+      });
+    } catch {
+      return 'medium'; // Fallback on error
+    }
+
+    if (!output || output.length === 0) {
+      return 'medium';
+    }
+
+    // Convert buffer to Float32Array (RMS is typically calculated on normalized -1.0 to 1.0 range)
+    const pcmData = new Int16Array(output.buffer, output.byteOffset, output.length / 2);
+    const audioData = new Float32Array(pcmData.length);
+    
+    // Sample a portion of the audio (first 100k samples ≈ 2.5 seconds at 44100Hz)
+    const sampleSize = Math.min(100000, pcmData.length);
+    
+    for (let i = 0; i < sampleSize; i++) {
+      audioData[i] = pcmData[i] / 32768.0; // Normalize to -1.0 to 1.0
+    }
+
+    // Calculate RMS
+    let sum = 0;
+    for (let i = 0; i < sampleSize; i++) {
+      sum += audioData[i] * audioData[i];
+    }
+    const rms = Math.sqrt(sum / sampleSize);
+
+    // Classify distance based on RMS thresholds
+    if (rms > 0.1) return 'close';
+    if (rms > 0.02) return 'medium';
+    return 'far';
+  } catch (error) {
+    console.warn('Failed to estimate distance:', error);
+    return 'medium'; // Fallback to medium if anything fails
+  }
 }
 
 export const ingestService = {
@@ -188,7 +241,7 @@ export const ingestService = {
 
           // Create Recording record with calculated values
           const speechRateWPM = calculateSpeechRate(transcriptData.label, duration);
-          const distanceEstimate = estimateDistance();
+          const distanceEstimate = await estimateDistance(permanentPath);
 
           await recordingRepository.create({
             audioFile: { connect: { id: audioFile.id } },
@@ -237,9 +290,11 @@ export const ingestService = {
           duration: true,
           filepath: true,
           sampleRate: true,
-          channels: true
+          channels: true,
+          bitDepth: true
         }
       }
     }, { audioFile: { duration: 'asc' } });
   }
 };
+

@@ -18,6 +18,7 @@
 
       <!-- RIGHT PANEL: Span Inspector (Task 5.5) -->
       <template #right>
+        <RecordingConditions />
         <SpanInspector />
       </template>
     </Main3PanelLayout>
@@ -33,6 +34,7 @@ import { useAnnotationStore } from '@/store/annotationStore';
 import Main3PanelLayout from '@/components/Main3PanelLayout.vue';
 import WorkQueue from '@/components/WorkQueue.vue';
 import AudioPlayer from '@/components/AudioPlayer.vue';
+import RecordingConditions from '@/components/RecordingConditions.vue';
 import DualTranscriptView from '@/components/DualTranscriptView.vue';
 import SpanInspector from '@/components/SpanInspector.vue';
 import IngestModal from '@/components/IngestModal.vue';

@@ -170,9 +170,17 @@ const formatStatus = (status: string) => {
   return map[status] || status;
 };
 
-const selectItem = (item: Transcript) => {
+const selectItem = async (item: Transcript) => {
   if (!isAutoRejected(item)) {
     store.selectTranscript(item.id);
+    // Fetch recording conditions for the selected audio file
+    if (item.audioFile?.id) {
+      try {
+        await store.fetchRecording(item.audioFile.id);
+      } catch (err) {
+        console.error('Failed to load recording conditions:', err);
+      }
+    }
   }
 };
 </script>

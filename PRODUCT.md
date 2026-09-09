@@ -42,12 +42,15 @@ Recordings under 15 seconds are auto-rejected (not worth human time).
 
 ✅ Audio upload (WAV, MP3, M4A)
 ✅ Transcript pairing and validation
+✅ Recording conditions panel (duration, sample rate, channels, bit depth)
+✅ Derived speech rate and microphone distance estimates
 ✅ Playback with speed control & keyboard shortcuts
 ✅ Click word → jump to timestamp
 ✅ Span annotation with custom types
 ✅ Export valid JSON
 ✅ Filter/sort work queue
 ✅ Immutable original transcript
+✅ Keyboard shortcuts for fast annotation (1-7 keys)
 
 ## Success Criteria
 

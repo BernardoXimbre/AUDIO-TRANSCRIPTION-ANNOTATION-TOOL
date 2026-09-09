@@ -12,6 +12,10 @@
 
       <!-- CENTER PANEL: Player + Transcripts -->
       <main class="flex-1 flex flex-col overflow-hidden bg-white">
+        <!-- Center Recording Conditions -->
+        <div class="shrink-0 px-3 pt-3">
+          <slot name="center-recording" />
+        </div>
         <!-- Center Top: Audio Player -->
         <div class="shrink-0">
           <slot name="center-top" />

@@ -13,13 +13,12 @@ export async function getRecording(req: Request, res: Response): Promise<void> {
     }
 
     res.json({
+      id: recording.id,
       audioFileId: recording.audioFileId,
       speechRate: recording.speechRate,
       distanceEstimate: recording.distanceEstimate,
-      duration: recording.audioFile.duration,
-      sampleRate: recording.audioFile.sampleRate,
-      channels: recording.audioFile.channels,
-      bitDepth: recording.audioFile.bitDepth
+      speechRateOverride: recording.speechRateOverride,
+      distanceOverride: recording.distanceOverride
     });
   } catch (error) {
     console.error('Error fetching recording:', error);
@@ -30,16 +29,16 @@ export async function getRecording(req: Request, res: Response): Promise<void> {
 export async function updateRecording(req: Request, res: Response): Promise<void> {
   try {
     const { audioFileId } = req.params;
-    const { speechRate, distanceEstimate } = req.body;
+    const { speechRateOverride, distanceOverride } = req.body;
 
     // Validate input
-    if (speechRate !== undefined && typeof speechRate !== 'number') {
-      res.status(400).json({ error: 'speechRate must be a number', status: 400 });
+    if (speechRateOverride !== undefined && speechRateOverride !== null && typeof speechRateOverride !== 'number') {
+      res.status(400).json({ error: 'speechRateOverride must be a number or null', status: 400 });
       return;
     }
 
-    if (distanceEstimate !== undefined && !['close', 'medium', 'far'].includes(distanceEstimate)) {
-      res.status(400).json({ error: 'distanceEstimate must be close, medium, or far', status: 400 });
+    if (distanceOverride !== undefined && distanceOverride !== null && !['close', 'medium', 'far'].includes(distanceOverride)) {
+      res.status(400).json({ error: 'distanceOverride must be close, medium, far, or null', status: 400 });
       return;
     }
 
@@ -50,18 +49,24 @@ export async function updateRecording(req: Request, res: Response): Promise<void
       return;
     }
 
-    const updated = await recordingRepository.update(audioFileId, {
-      speechRate: speechRate !== undefined ? speechRate : undefined,
-      distanceEstimate: distanceEstimate !== undefined ? distanceEstimate : undefined
-    });
+    // Update only provided fields
+    const updateData: { speechRateOverride?: number | null; distanceOverride?: string | null } = {};
+    if (speechRateOverride !== undefined) {
+      updateData.speechRateOverride = speechRateOverride;
+    }
+    if (distanceOverride !== undefined) {
+      updateData.distanceOverride = distanceOverride;
+    }
+
+    const updated = await recordingRepository.update(audioFileId, updateData);
 
     res.status(200).json({
-      success: true,
-      data: {
-        audioFileId: updated.audioFileId,
-        speechRate: updated.speechRate,
-        distanceEstimate: updated.distanceEstimate
-      }
+      id: updated.id,
+      audioFileId: updated.audioFileId,
+      speechRate: updated.speechRate,
+      distanceEstimate: updated.distanceEstimate,
+      speechRateOverride: updated.speechRateOverride,
+      distanceOverride: updated.distanceOverride
     });
   } catch (error) {
     console.error('Error updating recording:', error);

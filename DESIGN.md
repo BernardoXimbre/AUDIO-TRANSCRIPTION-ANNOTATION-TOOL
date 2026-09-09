@@ -4,39 +4,40 @@
 
 ### Core Tables
 
-**AudioItem**
+**AudioFile**
 - `id` - UUID, primary key
 - `filename` - Original filename
-- `path` - Storage path
-- `duration` - Audio length in seconds
-- `status` - PENDING, IN_PROGRESS, COMPLETED, REJECTED
-- `originalTranscript` - AI-generated transcript (immutable)
-- `correctedTranscript` - Human-corrected version
-- `annotations` - JSON array of annotations
-- `annotatedBy` - User who completed annotation
-- `createdAt`, `updatedAt` - Timestamps
+- `filepath` - Storage path (disk or S3)
+- `url` - URL to access file
+- `duration` - Duration in seconds
+- `sampleRate` - Sample rate in Hz (e.g., 16000)
+- `channels` - Number of channels (1=mono, 2=stereo)
+- `bitDepth` - Bits per sample (16, 24, 32)
+- `bextMetadata` - Optional BEXT metadata from WAV header
+
+**Transcript**
+- `id` - UUID
+- `audioFileId` - FK to AudioFile
+- `originalText` - AI-generated transcript (immutable)
+- `correctedText` - Human-corrected version
+- `status` - pending, in_progress, completed
+- `annotator` - Annotator name (optional)
 
 **Annotation**
 - `id` - UUID
-- `itemId` - FK to AudioItem
-- `type` - CRUD, NUMBER, FORMATTING, MEDICAL_TERM, OTHER
-- `startOffset` - Character position in transcript
+- `transcriptId` - FK to Transcript
+- `type` - CRUD, NUMBER, FORMATTING_COMMAND, SPELLED_OUT, NAMED_ENTITY, MEDICAL_TERM, MEASUREMENT
+- `startOffset` - Character position in correctedText
 - `endOffset` - End position
-- `value` - Corrected text or attribute value
-- `attributes` - JSON (e.g., {"rendering": "digits", "value": 12})
+- `attributes` - JSON (type-specific attributes)
 
-**Speaker**
+**Recording**
 - `id` - UUID
-- `name` - Speaker identifier
-- `role` - DOCTOR, ASSISTANT, etc
-
-**Utterance**
-- `id` - UUID
-- `itemId` - FK to AudioItem
-- `speakerId` - FK to Speaker
-- `startTime` - Seconds in audio
-- `endTime` - End time
-- `text` - Spoken text
+- `audioFileId` - FK to AudioFile (unique)
+- `speechRate` - Calculated words per minute
+- `distanceEstimate` - Microphone distance (close, medium, far)
+- `speechRateOverride` - User override for speechRate
+- `distanceOverride` - User override for distanceEstimate
 
 ## Architecture
 
@@ -79,19 +80,25 @@ PostgreSQL
 
 ## API Endpoints
 
-### Upload
-- `POST /api/upload/audio` - Upload audio files
-- `POST /api/upload/transcript` - Upload transcript JSON
+### Health
+- `GET /health` - Health check
 
-### Work Queue
-- `GET /api/items` - List with pagination, filter, sort
-- `GET /api/items/:id` - Get single item with details
+### Upload & Queue
+- `POST /api/ingest` - Upload audio + transcript (multipart)
+- `GET /api/queue` - Get work queue items with filtering
 
-### Editing
-- `PUT /api/items/:id` - Update transcript & status
-- `POST /api/items/:id/annotations` - Create annotation
-- `PUT /api/items/:id/annotations/:annotationId` - Update annotation
-- `DELETE /api/items/:id/annotations/:annotationId` - Delete annotation
+### Transcript Management
+- `GET /api/transcript/:id` - Get full transcript with corrected text and annotations
+- `PATCH /api/transcript/:id` - Save corrected transcript text
+
+### Annotations
+- `GET /api/annotation?transcriptId=...` - List annotations for transcript
+- `POST /api/annotation` - Create annotation
+- `DELETE /api/annotation/:id` - Delete annotation
+
+### Recording Conditions
+- `GET /api/recording/:audioFileId` - Get recording metadata (speechRate, distanceEstimate, overrides)
+- `PATCH /api/recording/:audioFileId` - Update recording overrides (speechRateOverride, distanceOverride)
 
 ### Export
 - `POST /api/export` - Export all completed items as JSON

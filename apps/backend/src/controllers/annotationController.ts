@@ -100,63 +100,6 @@ router.post('/', async (req: Request, res: Response) => {
 });
 
 /**
- * PATCH /api/annotation/:id
- * Update an annotation (only attributes, not offsets)
- * Body: { attributes } or partial updates
- */
-router.patch('/:id', async (req: Request, res: Response) => {
-  try {
-    const { id } = req.params;
-    const { attributes, type, startOffset, endOffset } = req.body;
-
-    // Get existing annotation
-    const annotation = await annotationRepository.findById(id);
-    if (!annotation) {
-      return res.status(404).json({ error: 'Annotation not found' });
-    }
-
-    // Determine the type to validate (existing or new)
-    const annotationType = type || annotation.type;
-
-    // If updating attributes, validate them
-    if (attributes !== undefined) {
-      const attrValidation = annotationService.validateAttributes(annotationType, attributes);
-      if (!attrValidation.valid) {
-        return res.status(400).json({ error: attrValidation.error });
-      }
-    }
-
-    // If updating offsets, validate bounds
-    if (startOffset !== undefined || endOffset !== undefined) {
-      const newStart = startOffset !== undefined ? startOffset : annotation.startOffset;
-      const newEnd = endOffset !== undefined ? endOffset : annotation.endOffset;
-
-      const offsetValidation = annotationService.validateOffsetRange(
-        newStart,
-        newEnd,
-        annotation.transcript.correctedText.length
-      );
-      if (!offsetValidation.valid) {
-        return res.status(400).json({ error: offsetValidation.error });
-      }
-    }
-
-    // Update the annotation
-    const updated = await annotationRepository.update(id, {
-      ...(type && { type: type.toUpperCase() }),
-      ...(startOffset !== undefined && { startOffset }),
-      ...(endOffset !== undefined && { endOffset }),
-      ...(attributes !== undefined && { attributes })
-    });
-
-    return res.json(updated);
-  } catch (error) {
-    console.error('PATCH /api/annotation/:id error:', error);
-    return res.status(500).json({ error: 'Internal server error' });
-  }
-});
-
-/**
  * DELETE /api/annotation/:id
  * Delete an annotation
  */

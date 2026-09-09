@@ -334,20 +334,20 @@ const createAnnotationWithType = (type: string) => {
   // Set default attributes based on type
   const getDefaultAttributes = () => {
     switch (type) {
-      case 'NUMBER':
-        return { rendering: 'digits', value: 0 };
-      case 'FORMATTING_COMMAND':
-        return { command: 'newline', isLiteral: false };
-      case 'SPELLED_OUT':
-        return { resolved: '' };
-      case 'NAMED_ENTITY':
-        return { category: 'person' };
-      case 'MEDICAL_TERM':
-        return { medicalCategory: 'anatomy', note: '' };
-      case 'MEASUREMENT':
-        return { measurementValue: 0, unit: 'mg', normalized: 0 };
-      default:
-        return {};
+    case 'NUMBER':
+      return { rendering: 'digits', value: 0 };
+    case 'FORMATTING_COMMAND':
+      return { command: 'newline', isLiteral: false };
+    case 'SPELLED_OUT':
+      return { resolved: '' };
+    case 'NAMED_ENTITY':
+      return { category: 'person' };
+    case 'MEDICAL_TERM':
+      return { medicalCategory: 'anatomy', note: '' };
+    case 'MEASUREMENT':
+      return { measurementValue: 0, unit: 'mg', normalized: 0 };
+    default:
+      return {};
     }
   };
 

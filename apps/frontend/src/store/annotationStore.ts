@@ -35,6 +35,15 @@ export interface Transcript {
   updatedAt?: string;
 }
 
+export interface Recording {
+  id: string;
+  audioFileId: string;
+  speechRate: number | null;
+  distanceEstimate: string | null;
+  speechRateOverride: number | null;
+  distanceOverride: string | null;
+}
+
 export const useAnnotationStore = defineStore('annotation', () => {
   // State
   const currentTranscriptId = ref<string | null>(null);
@@ -49,6 +58,7 @@ export const useAnnotationStore = defineStore('annotation', () => {
   const loading = ref(false);
   const error = ref<string | null>(null);
   const deletedAnnotationIds = ref<string[]>([]); // Track deletions for backend cleanup
+  const currentRecording = ref<Recording | null>(null); // Recording conditions for current audio
 
   // Computed: todos as annotations (local + persisted)
   const annotations = computed(() => [...local.value, ...persisted.value]);
@@ -326,6 +336,45 @@ export const useAnnotationStore = defineStore('annotation', () => {
     }
   };
 
+  // Fetch recording conditions for an audio file
+  const fetchRecording = async (audioFileId: string) => {
+    try {
+      const response = await fetch(`/api/recording/${audioFileId}`);
+      if (!response.ok) {
+        throw new Error('Failed to fetch recording conditions');
+      }
+      const data = await response.json();
+      currentRecording.value = data;
+      return data;
+    } catch (err) {
+      console.error(`❌ Failed to fetch recording for ${audioFileId}:`, err);
+      throw err;
+    }
+  };
+
+  // Update recording overrides
+  const updateRecording = async (audioFileId: string, overrides: Partial<{ speechRateOverride: number | null; distanceOverride: string | null }>) => {
+    try {
+      const response = await fetch(`/api/recording/${audioFileId}`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(overrides)
+      });
+
+      if (!response.ok) {
+        const data = await response.json();
+        throw new Error(data.error || 'Failed to update recording');
+      }
+
+      const updated = await response.json();
+      currentRecording.value = updated;
+      return updated;
+    } catch (err) {
+      console.error(`❌ Failed to update recording for ${audioFileId}:`, err);
+      throw err;
+    }
+  };
+
   return {
     // State
     currentTranscriptId,
@@ -340,6 +389,7 @@ export const useAnnotationStore = defineStore('annotation', () => {
     isPlaying,
     loading,
     error,
+    currentRecording,
     // Actions
     selectTranscript,
     selectAnnotation,
@@ -360,6 +410,8 @@ export const useAnnotationStore = defineStore('annotation', () => {
     fetchTranscriptFull,
     fetchTranscriptAnnotations,
     saveAnnotationToBackend,
-    saveAllChanges
+    saveAllChanges,
+    fetchRecording,
+    updateRecording
   };
 });
