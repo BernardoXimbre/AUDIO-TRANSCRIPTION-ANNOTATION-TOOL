@@ -122,6 +122,15 @@ watch(
   async (transcriptId) => {
     if (!transcriptId || !audioElement.value) return;
 
+    // Reset player state for new audio
+    if (isPlaying.value) {
+      audioElement.value.pause();
+      isPlaying.value = false;
+    }
+    currentTime.value = 0;
+    loopActive.value = false;
+    duration.value = 0;
+
     const transcript = store.transcripts.find(t => t.id === transcriptId);
     if (transcript && transcript.audioFile) {
       // Point directly to backend (not through proxy)
@@ -216,9 +225,13 @@ const onAudioEnded = () => {
 // GLOBAL HOTKEY LISTENER
 const handleKeyDown = (e: KeyboardEvent) => {
   const target = e.target as HTMLElement;
-  const isTextInput = target.tagName === 'INPUT' || target.tagName === 'TEXTAREA';
+  const isTextInput = target.tagName === 'TEXTAREA' || (target.tagName === 'INPUT' && (target as HTMLInputElement).type === 'text');
 
-  if (e.key === 'j' || e.key === 'J') {
+  // P: Play/Pause (allow even in inputs)
+  if ((e.key === 'p' || e.key === 'P') && !isTextInput) {
+    e.preventDefault();
+    togglePlayPause();
+  } else if (e.key === 'j' || e.key === 'J') {
     if (!isTextInput) {
       e.preventDefault();
       rewind();

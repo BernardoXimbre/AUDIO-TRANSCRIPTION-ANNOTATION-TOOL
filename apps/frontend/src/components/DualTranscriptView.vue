@@ -295,9 +295,75 @@ const jumpToTime = (time: number) => {
 // Lifecycle: Add global mouseup listener to handle selections properly
 onMounted(() => {
   document.addEventListener('mouseup', handleTextSelection);
+  document.addEventListener('keydown', handleAnnotationKeydown);
 });
 
 onUnmounted(() => {
   document.removeEventListener('mouseup', handleTextSelection);
+  document.removeEventListener('keydown', handleAnnotationKeydown);
 });
+
+// Handle 1, 2, 3, 4, 5, 6, 7 keys to create annotations with pre-selected type
+const handleAnnotationKeydown = (e: KeyboardEvent) => {
+  const target = e.target as HTMLElement;
+  // Only work in corrected text area, not in textareas
+  if (target.tagName === 'TEXTAREA' || target.tagName === 'INPUT') return;
+  
+  // If no text selected, ignore
+  if (!selectedText.value) return;
+
+  const typeMap: { [key: string]: string } = {
+    '1': 'CRUD',
+    '2': 'NUMBER',
+    '3': 'FORMATTING_COMMAND',
+    '4': 'SPELLED_OUT',
+    '5': 'NAMED_ENTITY',
+    '6': 'MEDICAL_TERM',
+    '7': 'MEASUREMENT'
+  };
+
+  if (typeMap[e.key]) {
+    e.preventDefault();
+    createAnnotationWithType(typeMap[e.key]);
+  }
+};
+
+const createAnnotationWithType = (type: string) => {
+  if (!selectedText.value || !currentTranscript.value) return;
+
+  // Set default attributes based on type
+  const getDefaultAttributes = () => {
+    switch (type) {
+      case 'NUMBER':
+        return { rendering: 'digits', value: 0 };
+      case 'FORMATTING_COMMAND':
+        return { command: 'newline', isLiteral: false };
+      case 'SPELLED_OUT':
+        return { resolved: '' };
+      case 'NAMED_ENTITY':
+        return { category: 'person' };
+      case 'MEDICAL_TERM':
+        return { medicalCategory: 'anatomy', note: '' };
+      case 'MEASUREMENT':
+        return { measurementValue: 0, unit: 'mg', normalized: 0 };
+      default:
+        return {};
+    }
+  };
+
+  const tempId = `ann_temp_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+  const newAnnotation = {
+    id: tempId,
+    transcriptId: currentTranscript.value.id,
+    type,
+    startOffset: selectionStart.value,
+    endOffset: selectionEnd.value,
+    text: selectedText.value,
+    attributes: getDefaultAttributes()
+  };
+
+  store.addAnnotation(newAnnotation);
+  store.setSelectedAnnotation(tempId);
+  selectedText.value = '';
+};
 </script>

@@ -1,0 +1,79 @@
+[
+  {
+    "audioPath": "01_cardiac_case.mp3",
+    "duration": 35.29,
+    "recordingConditions": {
+      "sampleRate": 44100,
+      "channels": 1,
+      "bitDepth": 2,
+      "speechRate": 92,
+      "distanceEstimate": "medium"
+    },
+    "transcript": {
+      "original": "Einnundfünfzig jährige Patientin mit anamnese von Hypertonie und Hyperlipidämie. EKG zeigt ST Strecken Elevation im anterolateralen Bereich. Troponin T erhöht auf zwei Komma fünf Nanogramm pro Milliliter. Diagnose: akutes Koronarsyndrom. Katheterisierung durchgeführt, Stent in LAD platziert. Patient war perioperativ stabil, Blutdruck stabil bei einhundertfünfzehn zu siebzig Millimeter Quecksilber. keine Komplikationen während des Eingriffs beobachtet.",
+      "corrected": "Einnundfünfzig jährige Patientin mit anamnese von Hypertonie und Hyperlipidämie. EKG zeigt ST Strecken Elevation im anterolateralen Bereich. Troponin T erhöht auf zwei Komma fünf Nanogramm pro Milliliter. Diagnose: akutes Koronarsyndrom. Katheterisierung durchgeführt, Stent in LAD platziert. Patient war perioperativ stabil, Blutdruck stabil bei einhundertfünfzehn zu siebzig Millimeter Quecksilber. keine Komplikationen während des Eingriffs beobachtet."
+    },
+    "annotations": []
+  },
+  {
+    "audioPath": "02_orthopedic_case.mp3",
+    "duration": 43.31,
+    "recordingConditions": {
+      "sampleRate": 44100,
+      "channels": 1,
+      "bitDepth": 2,
+      "speechRate": 100,
+      "distanceEstimate": "medium"
+    },
+    "transcript": {
+      "original": "Polytrauma Patient: zwoelf jähriger Junge nach Sturz von vier Meter Höhe. Röntgen zeigt Fraktur des linken Femurs Schaft, Tibia Kopf Fraktur rechts und Salter-Harris Grad zwei Fraktur der distalen Radius Epiphyse links. Notfall Operation indiziert. Anästhesie mit Propofol zwei mg pro Kilogramm, Rocuronium null Komma sechs mg pro Kilogramm. OP Dauer eins Stunde fünfundvierzig Minuten. Blutverlust geschätzt dreihundert bis vierhundert Milliliter. Patient extubiert nach OP, Vitalparameter stabil, Schmerzskala VAS drei von zehn.",
+      "corrected": "Polytrauma Patient: zwoelf jähriger Junge nach Sturz von vier Meter Höhe. Röntgen zeigt Fraktur des linken Femurs Schaft, Tibia Kopf Fraktur rechts und Salter-Harris Grad zwei Fraktur der distalen Radius Epiphyse links. Notfall Operation indiziert. Anästhesie mit Propofol zwei mg pro Kilogramm, Rocuronium null Komma sechs mg pro Kilogramm. OP Dauer eins Stunde fünfundvierzig Minuten. Blutverlust geschätzt dreihundert bis vierhundert Milliliter. Patient extubiert nach OP, Vitalparameter stabil, Schmerzskala VAS drei von zehn."
+    },
+    "annotations": [
+      {
+        "type": "FORMATTING_COMMAND",
+        "startOffset": 0,
+        "endOffset": 10,
+        "attributes": {
+          "command": "newline",
+          "isLiteral": false
+        }
+      },
+      {
+        "type": "FORMATTING_COMMAND",
+        "startOffset": 11,
+        "endOffset": 18,
+        "attributes": {
+          "command": "paragraph",
+          "isLiteral": false
+        }
+      },
+      {
+        "type": "NAMED_ENTITY",
+        "startOffset": 19,
+        "endOffset": 52,
+        "attributes": {
+          "category": "person"
+        }
+      },
+      {
+        "type": "FORMATTING_COMMAND",
+        "startOffset": 42,
+        "endOffset": 46,
+        "attributes": {
+          "command": "newline",
+          "isLiteral": false
+        }
+      },
+      {
+        "type": "FORMATTING_COMMAND",
+        "startOffset": 54,
+        "endOffset": 57,
+        "attributes": {
+          "command": "newline",
+          "isLiteral": false
+        }
+      }
+    ]
+  }
+]
